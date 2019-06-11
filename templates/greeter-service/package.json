@@ -1,0 +1,26 @@
+{
+  "name": "greeter-service",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "MihaiRo <mihai.rosca@thinslices.com>",
+  "homepage": "https://github.com/ivoryio/hello-templates#readme",
+  "license": "ISC",
+  "main": "src/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivoryio/hello-templates.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/ivoryio/hello-templates/issues"
+  }
+}
