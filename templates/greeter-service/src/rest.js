@@ -20,7 +20,7 @@ router.use(awsServerlessExpressMiddleware.eventContext())
 
 router.get('/greeting', async (req, res) => {
   const greeting = await getGreeting(retrieveAllGreetings)(req.query.name)
-  res.status(200).json({ greeting })
+  res.status(200).json(greeting)
 })
 
 router.post('/greeting', async (req, res) => {
