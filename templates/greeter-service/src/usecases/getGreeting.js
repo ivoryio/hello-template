@@ -3,7 +3,9 @@ module.exports = retrieveAllGreetings =>
     try {
       const greetings = await retrieveAllGreetings()
       const greeting = greetings[getRandomInt(greetings.length)]
-      return `${greeting.greeting} ${name ? name : 'John Doe'}`
+      return {
+        id: greeting.id,
+        text:`${greeting.text} ${name ? name : 'John Doe'}`}
     } catch (err) {
       throw err
     }
