@@ -67,7 +67,8 @@ Resources:
       ApiId: !GetAtt GraphQLAPI.ApiId
       Definition: |
         type Greeting {
-          text: String!
+          text: String!,
+          id: ID!
         }
         type Query {
           greeting(name: String!): Greeting!
