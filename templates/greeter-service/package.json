@@ -4,7 +4,13 @@
   "description": "Greets anyone making an API call, also offers the capability to add new greetings.",
   "license": "MIT",
   "scripts": {
-    "build": "mkdir -p build && aws cloudformation package --template-file infrastructure/template.yaml --output-template-file build/infrastructure.packaged.yaml",
-    "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM"
+    "build": "npm i && mkdir -p build && aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket foobarfizzbuzz",
+    "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name greeter-service-fizzbuzz --parameter-overrides Environment=development"
+  },
+  "dependencies": {
+    "aws-serverless-express": "^3.3.6",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
   }
 }

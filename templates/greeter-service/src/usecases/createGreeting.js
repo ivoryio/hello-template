@@ -4,7 +4,7 @@ module.exports = () =>
       const greetings = ['Hello', 'Hey', 'Salut']
       const greeting = greetings[getRandomInt(greetings.length)]
 
-      return `${greeting} name`
+      return `${greeting} ${name}`
     } catch (err) {
       throw err
     }
