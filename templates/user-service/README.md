@@ -1,11 +1,3 @@
 # `user-service`
 
-> TODO: description
-
-## Usage
-
-```
-const userService = require('user-service');
-
-// TODO: DEMONSTRATE API
-```
+> The *user-service* provides authentication and user management capabilities using AWS Cognito User Pools and Identity Pools
