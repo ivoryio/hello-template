@@ -6,12 +6,10 @@
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean"
   },
-  "devDependencies": {
-    "lerna": "^3.13.4"
-  },
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
-  }
+  },
+  "dependencies": {}
 }

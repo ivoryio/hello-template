@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS resources for the Greeter microservice
+
+Parameters:
+  ServiceName:
+    Type: String
+    Default: 'greeter-service'
+
+  Environment:
+    Type: String
+    AllowedValues:
+      - 'development'
+      - 'staging'
+      - 'production'
+
+Resources:
+  GreeterRESTApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Environment
+      Cors: "'*'"
+      # Auth:
+      #   DefaultAuthorizer: CognitoAuthorizer
+      #   Authorizers:
+      #     CognitoAuthorizer:
+      #       UserPoolArn: !Sub '{{resolve:ssm:user-service-user-pool-arn-${Environment}:1}}'
+      #       IdentitySource: 'method.request.header.Authorization'
+
+  GreeterRESTApiController:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/rest.controller
+      MemorySize: 512
+      Timeout: 60
+      Runtime: nodejs8.10
+      Environment:
+        Variables:
+          Environment: !Ref Environment
+          REGION: !Sub ${AWS::Region}
+          TABLE_NAME: !Ref GreeterTable
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:PutItem'
+                - 'dynamodb:Scan'
+              Resource: !GetAtt GreeterTable.Arn
+      Events:
+        ProxyGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref GreeterRESTApi
+            Path: /{proxy+}
+            Method: GET
+        ProxyPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref GreeterRESTApi
+            Path: /{proxy+}
+            Method: POST
+        ProxyOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref GreeterRESTApi
+            Path: /{proxy+}
+            Method: OPTIONS
+            # Auth:
+            #   Authorizer: NONE
+
+  GreeterResolver:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/graphql.resolver
+      MemorySize: 512
+      Timeout: 60
+      Runtime: nodejs8.10
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref GreeterTable
+          REGION: !Sub ${AWS::Region}
+      Policies:
+        Statement:
+          - Effect: 'Allow'
+            Action:
+              - dynamodb:PutItem
+              - dynamodb:Scan
+            Resource:                   
+              - !GetAtt GreeterTable.Arn
+
+  GreeterTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  RESTApiUrlParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ServiceName}-rest-api-url-${Environment}'
+      Type: String
+      Value: !Sub https://${GreeterRESTApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/
+      Description: !Sub 'The Greeter service REST API URL to be used in ${Environment}'
+ 
+  GreeterResolverArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ServiceName}-graphql-resolver-${Environment}'
+      Type: String
+      Value: !GetAtt GreeterResolver.Arn 
+      Description: !Sub 'The Greeter service resolver ARN to be used in ${Environment}'
