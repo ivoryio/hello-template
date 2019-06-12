@@ -71,7 +71,7 @@ Resources:
   GreeterResolver:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: graphql.resolver
+      Handler: src/graphql.resolver
       MemorySize: 512
       Timeout: 60
       Runtime: nodejs8.10
