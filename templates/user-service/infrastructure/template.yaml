@@ -1,0 +1,179 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Resources needed by the user-service
+
+Parameters:
+  ServiceName:
+    Type: String
+    Default: 'user-service'
+
+  Environment:
+    Type: String
+    AllowedValues:
+      - 'development'
+      - 'staging'
+      - 'production'
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: false
+        - Name: name
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+        - Name: family_name
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+        - Name: city
+          AttributeDataType: String
+          Mutable: true
+        - Name: country
+          AttributeDataType: String
+          Mutable: true
+      LambdaConfig:
+        PreSignUp: !GetAtt PreSignupLambdaFunction.Arn
+
+  PreSignupLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.singUpAutoConfirm
+      Runtime: nodejs8.10
+      InlineCode: |
+        exports.singUpAutoConfirm = async (event) => {
+          event.response.autoConfirmUser = true
+          return event
+        }
+
+  LambdaCognitoUserPoolExecutionPermission:
+    Type: AWS::Lambda::Permission
+    Properties: 
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt PreSignupLambdaFunction.Arn
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !GetAtt UserPool.Arn
+
+  UserPoolWebClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+
+  IdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+        - ClientId: !Ref UserPoolWebClient
+          ProviderName: !GetAtt UserPool.ProviderName
+
+  CognitoAuthorizedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Federated: 'cognito-identity.amazonaws.com'
+            Action:
+              - 'sts:AssumeRoleWithWebIdentity'
+            Condition:
+              StringEquals:
+                'cognito-identity.amazonaws.com:aud': !Ref IdentityPool
+              'ForAnyValue:StringLike':
+                'cognito-identity.amazonaws.com:amr': authenticated
+      Policies:
+        - PolicyName: !Sub '${ServiceName}-cognito-authorized-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - 'mobileanalytics:PutEvents'
+                  - 'cognito-sync:*'
+                  - 'cognito-identity:*'
+                Resource: '*'
+              - Effect: 'Allow'
+                Action:
+                  - 'lambda:InvokeFunction'
+                Resource: '*'
+              - Effect: 'Allow'
+                Action:
+                  - 'execute-api:Invoke'
+                Resource: '*'
+
+  CognitoUnauthorizedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Federated: 'cognito-identity.amazonaws.com'
+            Action:
+              - 'sts:AssumeRoleWithWebIdentity'
+            Condition:
+              StringEquals:
+                'cognito-identity.amazonaws.com:aud': !Ref IdentityPool
+              'ForAnyValue:StringLike':
+                'cognito-identity.amazonaws.com:amr': unauthenticated
+      Policies:
+        - PolicyName: !Sub '${ServiceName}-cognito-unauthorized-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Deny'
+                Action: '*'
+                Resource: '*'
+
+  IdentityPoolRoleMapping:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref IdentityPool
+      Roles:
+        authenticated: !GetAtt CognitoAuthorizedRole.Arn
+        unauthenticated: !GetAtt CognitoUnauthorizedRole.Arn
+
+  UserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ServiceName}-user-pool-id-${Environment}'
+      Type: String
+      Value: !Ref UserPool
+      Description: !Sub 'The Cognito user pool id created by the user-service to be used in ${Environment}'
+
+  UserPoolArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ServiceName}-user-pool-arn-${Environment}'
+      Type: String
+      Value: !GetAtt UserPool.Arn
+      Description: !Sub 'The Cognito user pool ARN created by the user-service to be used in ${Environment}'
+
+  UserPoolWebClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ServiceName}-user-pool-client-id-${Environment}'
+      Type: String
+      Value: !Ref UserPoolWebClient
+      Description: !Sub 'The Cognito user pool web client id created by the user-service to be used in ${Environment}'
+
+  IdentityPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ServiceName}-identity-pool-id-${Environment}'
+      Type: String
+      Value: !Ref IdentityPool
+      Description: !Sub 'The Cognito identity pool id created by the user-service to be used in ${Environment}'

@@ -1,26 +1,10 @@
 {
   "name": "user-service",
   "version": "0.0.1",
-  "description": "> TODO: description",
-  "author": "MihaiRo <mihai.rosca@thinslices.com>",
-  "homepage": "https://github.com/ivoryio/hello-templates#readme",
-  "license": "ISC",
-  "main": "src/index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ivoryio/hello-templates.git"
-  },
+  "description": "The user microservice provides authentication and user profile management capabilities",
+  "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  },
-  "bugs": {
-    "url": "https://github.com/ivoryio/hello-templates/issues"
+    "build": "mkdir -p build && aws cloudformation package --template-file infrastructure/template.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket foobarfizzbuzz",
+    "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name user-service-fizzbuzz --parameter-overrides Environment=development"
   }
 }
