@@ -1,26 +1,10 @@
 {
   "name": "greeter-service",
   "version": "0.0.1",
-  "description": "> TODO: description",
-  "author": "MihaiRo <mihai.rosca@thinslices.com>",
-  "homepage": "https://github.com/ivoryio/hello-templates#readme",
-  "license": "ISC",
-  "main": "src/index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ivoryio/hello-templates.git"
-  },
+  "description": "Greets anyone making an API call, also offers the capability to add new greetings.",
+  "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  },
-  "bugs": {
-    "url": "https://github.com/ivoryio/hello-templates/issues"
+    "build": "mkdir -p build && aws cloudformation package --template-file infrastructure/template.yaml --output-template-file build/infrastructure.packaged.yaml",
+    "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM"
   }
 }
