@@ -49,11 +49,12 @@ Resources:
               - Effect: Allow
                 Action: lambda:invokeFunction
                 Resource:
-                  - !GetAtt: !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
+                  - !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
   
   GraphQLAPI:
     Type: AWS::AppSync::GraphQLApi
     Properties:
+      Name: !Sub '${ServiceName}-graphqlapi-${Environment}'
       AuthenticationType: AMAZON_COGNITO_USER_POOLS
       UserPoolConfig:
         AwsRegion: !Sub ${AWS::Region}
@@ -77,7 +78,8 @@ Resources:
 
   GreeterDataSource:
     Type: AWS::AppSync::DataSource
-    Properties: 
+    Properties:
+      Name: !Sub 'data_gateway_datasource_${Environment}' 
       ApiId: !GetAtt GraphQLAPI.ApiId
       LambdaConfig:
         LambdaFunctionArn: !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
