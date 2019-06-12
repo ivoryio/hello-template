@@ -4,14 +4,20 @@
   "description": "Greets anyone making an API call, also offers the capability to add new greetings.",
   "license": "MIT",
   "scripts": {
+    "test:unit": "./node_modules/mocha/bin/mocha tests/unit",
     "build": "npm i && mkdir -p build && aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket foobarfizzbuzz",
     "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name greeter-service-fizzbuzz-bogdan --parameter-overrides Environment=development"
   },
   "dependencies": {
+    "@hapi/joi": "^15.0.3",
     "aws-serverless-express": "^3.3.6",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
   }
 }
