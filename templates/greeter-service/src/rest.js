@@ -16,7 +16,7 @@ router.use(bodyParser.urlencoded({ extended: true }))
 router.use(awsServerlessExpressMiddleware.eventContext())
 
 router.get('/greeting', async (req, res) => {
-  const greeting = await getGreeting()(req.body.name)
+  const greeting = await getGreeting()(req.query.name)
   res.status(200).json({ greeting })
 })
 
