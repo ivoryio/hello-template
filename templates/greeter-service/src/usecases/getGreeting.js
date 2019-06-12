@@ -1,10 +1,9 @@
-module.exports = () =>
+module.exports = retrieveAllGreetings =>
   async function(name) {
     try {
-      const greetings = ['Hello', 'Hey', 'Salut']
+      const greetings = await retrieveAllGreetings()
       const greeting = greetings[getRandomInt(greetings.length)]
-
-      return `${greeting} ${name}`
+      return `${greeting.greeting} ${name ? name : 'John Doe'}`
     } catch (err) {
       throw err
     }

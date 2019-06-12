@@ -7,6 +7,9 @@ const awsServerlessExpressMiddleware = require('aws-serverless-express/middlewar
 const getGreeting = require('./usecases/getGreeting')
 const createGreeting = require('./usecases/createGreeting')
 
+const persistGreeting = require('./repository/persistGreeting')
+const retrieveAllGreetings = require('./repository/retrieveAllGreetings')
+
 const app = express()
 const router = express.Router()
 
@@ -16,13 +19,15 @@ router.use(bodyParser.urlencoded({ extended: true }))
 router.use(awsServerlessExpressMiddleware.eventContext())
 
 router.get('/greeting', async (req, res) => {
-  const greeting = await getGreeting()(req.query.name)
+  const greeting = await getGreeting(retrieveAllGreetings)(req.query.name)
   res.status(200).json({ greeting })
 })
 
 router.post('/greeting', async (req, res) => {
-  const greeting = await createGreeting()(req.body.name)
-  res.status(201).json({ greeting })
+  const greeting = await createGreeting(persistGreeting)(req.body.greeting)
+
+  console.log(greeting)
+  res.status(201).json(greeting)
 })
 
 app.use('/', router)

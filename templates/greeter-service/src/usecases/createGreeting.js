@@ -1,15 +1,19 @@
-module.exports = () =>
-  async function(name) {
-    try {
-      const greetings = ['Hello', 'Hey', 'Salut']
-      const greeting = greetings[getRandomInt(greetings.length)]
+const uuidv4 = require('uuid/v4')
 
-      return `${greeting} ${name}`
+module.exports = persistGreeting =>
+  async function(greetingText) {
+    try {
+      const greeting = createGreeting()
+      await persistGreeting(greeting)
+      return greeting
     } catch (err) {
       throw err
     }
 
-    function getRandomInt(max) {
-      return Math.floor(Math.random() * Math.floor(max))
+    function createGreeting() {
+      return {
+        id: uuidv4(),
+        greeting: greetingText
+      }
     }
   }
