@@ -29,5 +29,5 @@ app.use('/', router)
 
 const server = awsServerlessExpress.createServer(app)
 
-exports.handler = (event, context) =>
+exports.controller = (event, context) =>
   awsServerlessExpress.proxy(server, event, context)
