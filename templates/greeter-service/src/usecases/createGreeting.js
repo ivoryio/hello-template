@@ -1,7 +1,7 @@
 const uuidv4 = require('uuid/v4')
 
 module.exports = persistGreeting =>
-  async function(greetingText) {
+  async function(text) {
     try {
       validateInput()
 
@@ -13,15 +13,15 @@ module.exports = persistGreeting =>
     }
 
     function validateInput() {
-      if(!greetingText) {
-        throw new Error('MissingParameter: greetingText is required')
+      if(!text) {
+        throw new Error('MissingParameter: text is required')
       }
     }
 
     function createGreeting() {
       return {
-        id: uuidv4(),
-        greeting: greetingText
+        text,
+        id: uuidv4()
       }
     }
   }

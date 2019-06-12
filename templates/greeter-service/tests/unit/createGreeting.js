@@ -12,7 +12,7 @@ describe('Create greeting usecase', () => {
     const greeting = await createGreeting(persistGreeting)(greetingText)
 
     assertId(greeting)
-    greeting.should.have.property('greeting', 'Hello')
+    greeting.should.have.property('text', 'Hello')
   })
 
   it('should throw an error when creating a greeting without text', async () => {
