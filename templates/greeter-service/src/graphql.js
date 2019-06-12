@@ -4,10 +4,8 @@ const createGreeting = require('./usecases/createGreeting')
 exports.resolver = async (event) => {
   switch(event.field) {
     case 'greeting':
-      const { name } =  event.arguments
-      return await getGreeting()(name)
+      return await getGreeting()(event.arguments.name)
     case 'createGreeting':
-      const { greeting } = event.arguments
-      return await createGreeting()(greeting)
+      return await createGreeting()(event.arguments.greeting)
   }
 }
