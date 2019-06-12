@@ -6,6 +6,13 @@ Parameters:
     Type: String
     Default: 'data-gateway-service'
 
+  Environment:
+    Type: String
+    AllowedValues:
+      - 'development'
+      - 'staging'
+      - 'production'
+
 Resources:
   ### Roles ###
   LoggingRole:
@@ -22,3 +29,92 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSAppSyncPushToCloudWatchLogs
+
+  InvokeLambdaRole: 
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: '2012-10-17'
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies: 
+        - PolicyName: allow-access-to-lambda-from-appsync
+          PolicyDocument: 
+            Version: '2012-10-17'
+            Statement: 
+              - Effect: Allow
+                Action: lambda:invokeFunction
+                Resource:
+                  - !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
+  
+  GraphQLAPI:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Sub '${ServiceName}-graphqlapi-${Environment}'
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      UserPoolConfig:
+        AwsRegion: !Sub ${AWS::Region}
+        DefaultAction: 'ALLOW'
+        UserPoolId: !Sub '{{resolve:ssm:user-service-user-pool-id-${Environment}:1}}'
+
+  GraphQLSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      Definition: |
+        type Greeting {
+          text: String!,
+          id: ID!
+        }
+        type Query {
+          greeting(name: String!): Greeting!
+        }
+        type Mutation {
+          addGreeting(text: String!): Greeting!
+        }
+
+  GreeterDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      Name: !Sub 'data_gateway_datasource_${Environment}' 
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      LambdaConfig:
+        LambdaFunctionArn: !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
+      ServiceRoleArn: !GetAtt InvokeLambdaRole.Arn
+      Type: AWS_LAMBDA
+
+  GreetingResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt GreeterDataSource.Name
+      TypeName: Query
+      FieldName: greeting
+      RequestMappingTemplate: |
+        { 
+          "version": "2017-02-28", 
+          "operation": "Invoke", 
+          "payload": { 
+            "field": "greeting",
+            "arguments": $utils.toJson($context.args)}}
+      ResponseMappingTemplate: $utils.toJson($context.result)
+
+  AddGreetingResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt GreeterDataSource.Name
+      TypeName: Mutation
+      FieldName: addGreeting
+      RequestMappingTemplate: |
+        { 
+          "version": "2017-02-28", 
+          "operation": "Invoke", 
+          "payload": { 
+            "field": "addGreeting",
+            "arguments": $utils.toJson($context.args)}}
+      ResponseMappingTemplate: $utils.toJson($context.result)
