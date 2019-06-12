@@ -93,3 +93,11 @@ Resources:
               - dynamodb:GetItem
             Resource:                   
               - !GetAtt GreeterTable.Arn
+
+  GreeterResolverArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ServiceName}-graphql-resolver-${Environment}'
+      Type: String
+      Value: !GetAtt GreeterResolver.Arn 
+      Description: !Sub 'The Greeter service resolver ARN to be used in ${Environment}'
