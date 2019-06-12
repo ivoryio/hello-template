@@ -5,6 +5,6 @@
   "license": "MIT",
   "scripts": {
     "build": "mkdir -p build && aws cloudformation package --template-file infrastructure/template.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket foobarfizzbuzz",
-    "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name foobar --parameter-overrides Environment=development"
+    "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name user-service-fizzbuzz --parameter-overrides Environment=development"
   }
 }
