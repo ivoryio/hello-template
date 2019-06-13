@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "test:unit": "npm i && ./node_modules/mocha/bin/mocha tests/unit",
-    "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket foobarfizzbuzz",
-    "cf:deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name kill-me --parameter-overrides Environment=development",
+    "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket [LAMBDA_ARTIFACTS_BUCKET]",
+    "cf:deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name [DEVELOPMENT_STACK_NAME] --parameter-overrides Environment=development",
     "build": "npm i && npm run test:unit && mkdir -p build && npm run cf:package",
     "deploy": "npm run build && npm run cf:deploy"
   },
