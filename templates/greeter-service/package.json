@@ -4,9 +4,11 @@
   "description": "Greets anyone making an API call, also offers the capability to add new greetings.",
   "license": "MIT",
   "scripts": {
-    "test:unit": "./node_modules/mocha/bin/mocha tests/unit",
-    "build": "npm i && mkdir -p build && aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket foobarfizzbuzz",
-    "deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name greeter-service-fizzbuzz --parameter-overrides Environment=development"
+    "test:unit": "npm i && ./node_modules/mocha/bin/mocha tests/unit",
+    "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket [LAMBDA_ARTIFACTS_BUCKET]",
+    "cf:deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name [DEVELOPMENT_STACK_NAME] --parameter-overrides Environment=development",
+    "build": "npm i && npm run test:unit && mkdir -p build && npm run cf:package",
+    "deploy": "npm run build && npm run cf:deploy"
   },
   "dependencies": {
     "@hapi/joi": "^15.0.3",
