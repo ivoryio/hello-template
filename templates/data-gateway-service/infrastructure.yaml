@@ -18,7 +18,14 @@ Resources:
   LoggingRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', ['{{resolve:ssm:project-name:1}}', !Sub '${ServiceName}-logging-role']]
+      RoleName:
+        !Join [
+          '-',
+          [
+            '{{resolve:ssm:project-name:1}}',
+            !Sub '${ServiceName}-logging-role',
+          ],
+        ]
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -30,27 +37,27 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSAppSyncPushToCloudWatchLogs
 
-  InvokeLambdaRole: 
+  InvokeLambdaRole:
     Type: AWS::IAM::Role
-    Properties: 
-      AssumeRolePolicyDocument: 
+    Properties:
+      AssumeRolePolicyDocument:
         Version: '2012-10-17'
-        Statement: 
+        Statement:
           - Effect: Allow
             Principal:
               Service: appsync.amazonaws.com
             Action:
               - sts:AssumeRole
-      Policies: 
+      Policies:
         - PolicyName: allow-access-to-lambda-from-appsync
-          PolicyDocument: 
+          PolicyDocument:
             Version: '2012-10-17'
-            Statement: 
+            Statement:
               - Effect: Allow
                 Action: lambda:invokeFunction
                 Resource:
                   - !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
-  
+
   GraphQLAPI:
     Type: AWS::AppSync::GraphQLApi
     Properties:
@@ -80,7 +87,7 @@ Resources:
   GreeterDataSource:
     Type: AWS::AppSync::DataSource
     Properties:
-      Name: !Sub 'data_gateway_datasource_${Environment}' 
+      Name: !Sub 'data_gateway_datasource_${Environment}'
       ApiId: !GetAtt GraphQLAPI.ApiId
       LambdaConfig:
         LambdaFunctionArn: !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
@@ -100,7 +107,8 @@ Resources:
           "operation": "Invoke", 
           "payload": { 
             "field": "greeting",
-            "arguments": $utils.toJson($context.args)}}
+            "arguments": $utils.toJson($context.args)}
+        }
       ResponseMappingTemplate: $utils.toJson($context.result)
 
   AddGreetingResolver:
@@ -116,5 +124,6 @@ Resources:
           "operation": "Invoke", 
           "payload": { 
             "field": "addGreeting",
-            "arguments": $utils.toJson($context.args)}}
+            "arguments": $utils.toJson($context.args)}
+        }
       ResponseMappingTemplate: $utils.toJson($context.result)
