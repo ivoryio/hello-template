@@ -20,12 +20,12 @@ Resources:
     Properties:
       StageName: !Ref Environment
       Cors: "'*'"
-      # Auth:
-      #   DefaultAuthorizer: CognitoAuthorizer
-      #   Authorizers:
-      #     CognitoAuthorizer:
-      #       UserPoolArn: !Sub '{{resolve:ssm:user-service-user-pool-arn-${Environment}:1}}'
-      #       IdentitySource: 'method.request.header.Authorization'
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Sub '{{resolve:ssm:user-service-user-pool-arn-${Environment}:1}}'
+            IdentitySource: 'method.request.header.Authorization'
 
   GreeterRESTApiController:
     Type: AWS::Serverless::Function
@@ -65,8 +65,8 @@ Resources:
             RestApiId: !Ref GreeterRESTApi
             Path: /{proxy+}
             Method: OPTIONS
-            # Auth:
-            #   Authorizer: NONE
+            Auth:
+              Authorizer: NONE
 
   GreeterResolver:
     Type: AWS::Serverless::Function
