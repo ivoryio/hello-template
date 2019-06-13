@@ -23,7 +23,7 @@ Resources:
           '-',
           [
             '{{resolve:ssm:project-name:1}}',
-            !Sub '${ServiceName}-logging-role',
+            !Sub '${ServiceName}-logging-role-${Environment}',
           ],
         ]
       AssumeRolePolicyDocument:
