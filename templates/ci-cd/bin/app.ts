@@ -14,7 +14,9 @@ createDataGatewayCICD()
 createGreeterServiceCICD()
 
 function createWebCICD() {
-  new WebCICDStack(app, 'web-ci-cd-stack')
+  new WebCICDStack(app, 'web-ci-cd-stack', {
+    serviceName: 'web'
+  })
 }
 
 function createUserServiceCICD() {
