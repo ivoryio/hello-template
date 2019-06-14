@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/node": "8.10.45",
     "ts-node": "^8.1.0",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.5.2"
   },
   "dependencies": {
     "@aws-cdk/aws-codebuild": "^0.34.0",

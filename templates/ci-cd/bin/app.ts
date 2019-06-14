@@ -2,14 +2,20 @@
 import 'source-map-support/register'
 import cdk = require('@aws-cdk/cdk')
 import s3 = require('@aws-cdk/aws-s3')
-import ssm = require('@aws-cdk/aws-ssm')
+
+import WebCICDStack from '../lib/web/WebCICDStack'
 import ServiceCICDStack from '../lib/services/ServiceCICDStack'
 
 const app = new cdk.App()
 
+createWebCICD()
 createUserServiceCICD()
 createDataGatewayCICD()
 createGreeterServiceCICD()
+
+function createWebCICD() {
+  new WebCICDStack(app, 'web-ci-cd-stack')
+}
 
 function createUserServiceCICD() {
   new ServiceCICDStack(app, 'user-service-ci-cd-stack', {
