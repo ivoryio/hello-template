@@ -1,6 +1,7 @@
 import cdk = require('@aws-cdk/cdk')
 import s3 = require('@aws-cdk/aws-s3')
 import cf = require('@aws-cdk/aws-cloudfront')
+import targets = require('@aws-cdk/aws-events-targets')
 
 import { WebCICDStackProps } from './interfaces'
 import WebRepository from './constructs/WebRepository'
@@ -22,12 +23,15 @@ export default class WebCICDStack extends cdk.Stack {
 
     this.makeCFDistribution(this, serviceName, productionBucket)
 
-    new WebBuildProject(this, `${serviceName}-web-build-construct`, {
+    const project = new WebBuildProject(this, `${serviceName}-web-build-construct`, {
       buildSpec,
       repository,
       serviceName
     }).entity
 
+    repository.onCommit(`trigger-${serviceName}-web-build`, {
+      target: new targets.CodeBuildProject(project)
+    })
   }
 
   private makeBucket(stack: cdk.Stack, stage: string) {
