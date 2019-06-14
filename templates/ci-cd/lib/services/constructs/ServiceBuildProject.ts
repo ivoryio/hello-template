@@ -14,9 +14,7 @@ export default class ServiceBuildProject extends cdk.Construct {
         const { serviceName, repository, makeBuildSpec: buildSpec } = props
 
         const bucketName = `${serviceName}-lambda-artifacts-bucket`
-        const lambdaArtifactsBucket = new s3.Bucket(this, bucketName, {
-            bucketName,
-        })
+        const lambdaArtifactsBucket = new s3.Bucket(this, bucketName, {})
 
         const projectName = `${serviceName}-build`
         const buildProject = new codebuild.Project(this, projectName, {
