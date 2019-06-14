@@ -9,13 +9,13 @@ import ServiceCICDStack from '../lib/services/ServiceCICDStack'
 const app = new cdk.App()
 
 createWebCICD()
-createUserServiceCICD()
-createDataGatewayCICD()
-createGreeterServiceCICD()
+// createUserServiceCICD()
+// createDataGatewayCICD()
+// createGreeterServiceCICD()
 
 function createWebCICD() {
   new WebCICDStack(app, 'web-ci-cd-stack', {
-    serviceName: 'web'
+    serviceName: 'apple'
   })
 }
 
