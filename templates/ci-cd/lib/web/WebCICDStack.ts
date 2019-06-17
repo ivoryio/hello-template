@@ -6,6 +6,7 @@ import targets = require('@aws-cdk/aws-events-targets')
 import { WebCICDStackProps } from './interfaces'
 import WebRepository from './constructs/WebRepository'
 import WebBuildProject from './constructs/WebBuildProject'
+import WebPipeline from './constructs/WebPipeline'
 
 
 export default class WebCICDStack extends cdk.Stack {
@@ -18,10 +19,11 @@ export default class WebCICDStack extends cdk.Stack {
       serviceName
     }).entity
 
-    const stagingBucket = this.makeBucket(this, 'staging')
-    const productionBucket = this.makeBucket(this, 'production')
+    this.buckets = {}
+    this.buckets['staging'] = this.makeBucket(this, 'staging')
+    this.buckets['production'] = this.makeBucket(this, 'production')
 
-    this.makeCFDistribution(this, serviceName, productionBucket)
+    this.makeCFDistribution(this, serviceName, this.buckets.production)
 
     const project = new WebBuildProject(this, `${serviceName}-web-build-construct`, {
       buildSpec,
@@ -29,9 +31,19 @@ export default class WebCICDStack extends cdk.Stack {
       serviceName
     }).entity
 
+    new WebPipeline(this, `${serviceName}-pipeline-construct`, {
+      project,
+      repository,
+      serviceName,
+      buckets: this.buckets
+    }).entity
+
     repository.onCommit(`trigger-${serviceName}-web-build`, {
       target: new targets.CodeBuildProject(project)
     })
+  }
+  private buckets: {
+    [stage: string]: s3.IBucket
   }
 
   private makeBucket(stack: cdk.Stack, stage: string) {
