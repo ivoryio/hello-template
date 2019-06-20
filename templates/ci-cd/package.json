@@ -1,26 +1,32 @@
 {
   "name": "ci-cd",
   "version": "0.0.1",
-  "description": "> TODO: description",
-  "author": "MihaiRo <mihai.rosca@thinslices.com>",
-  "homepage": "https://github.com/ivoryio/hello-templates#readme",
-  "license": "ISC",
-  "main": "src/index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ivoryio/hello-templates.git"
+  "bin": {
+    "ci-cd-template": "bin/ci-cd-template.js"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk"
   },
-  "bugs": {
-    "url": "https://github.com/ivoryio/hello-templates/issues"
+  "devDependencies": {
+    "@types/node": "8.10.45",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-cloudfront": "^0.34.0",
+    "@aws-cdk/aws-codebuild": "^0.34.0",
+    "@aws-cdk/aws-codecommit": "^0.34.0",
+    "@aws-cdk/aws-codepipeline": "^0.34.0",
+    "@aws-cdk/aws-codepipeline-actions": "^0.34.0",
+    "@aws-cdk/aws-events": "^0.34.0",
+    "@aws-cdk/aws-events-targets": "^0.34.0",
+    "@aws-cdk/aws-lambda": "^0.34.0",
+    "@aws-cdk/aws-s3": "^0.34.0",
+    "@aws-cdk/aws-sns": "^0.34.0",
+    "@aws-cdk/aws-ssm": "^0.34.0",
+    "@aws-cdk/cdk": "^0.34.0",
+    "source-map-support": "^0.5.9"
   }
 }
