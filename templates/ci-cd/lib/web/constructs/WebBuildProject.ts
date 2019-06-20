@@ -2,7 +2,6 @@ import cdk = require('@aws-cdk/cdk')
 import codebuild = require('@aws-cdk/aws-codebuild')
 
 import { WebBuildProjectProps } from './interfaces'
-import BuildSlackNotifier from '../../constructs/buildNotifier/BuildSlackNotifier'
 
 
 export default class WebBuildProject extends cdk.Construct {
@@ -11,29 +10,14 @@ export default class WebBuildProject extends cdk.Construct {
   constructor(parent: cdk.Stack, id: string, props: WebBuildProjectProps) {
     super(parent, id)
 
-    const { serviceName, repository, buildSpec } = props
-    const projectName = `${serviceName}-web-build`
-    const notifier = new BuildSlackNotifier(this, `${serviceName}-web-notifier`, { serviceName })
+    const { repository, buildSpec } = props
+    const projectName = `web-build`
 
     this.entity = new codebuild.Project(this, projectName, {
       projectName,
       source: new codebuild.CodeCommitSource({ repository }),
       buildSpec: buildSpec ? buildSpec : this.makeDefaultBuildSpec(),
-      description: `Build ${serviceName} web project`
-    })
-
-    this.entity.onBuildSucceeded(`trigger-${serviceName}-web-build-succeeded`, {
-      target: notifier.makeTarget({
-        component: 'web',
-        isBuildSuccessful: true
-      })
-    })
-
-    this.entity.onBuildFailed(`trigger-${serviceName}-web-build-failed`, {
-      target: notifier.makeTarget({
-        component: 'web',
-        isBuildSuccessful: false
-      })
+      description: `Build web project`
     })
   }
 

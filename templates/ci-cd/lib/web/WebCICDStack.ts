@@ -13,32 +13,28 @@ export default class WebCICDStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: WebCICDStackProps) {
     super(scope, id)
 
-    const { serviceName, buildSpec } = props
+    const { buildSpec } = props
 
-    const repository = new WebRepository(this, `${serviceName}-web-repository-construct`, {
-      serviceName
-    }).entity
+    const repository = new WebRepository(this, `web-repository-construct`, {}).entity
 
     this.buckets = {}
     this.buckets['staging'] = this.makeBucket(this, 'staging')
     this.buckets['production'] = this.makeBucket(this, 'production')
 
-    this.makeCFDistribution(this, serviceName, this.buckets.production)
+    this.makeCFDistribution(this, this.buckets.production)
 
-    const project = new WebBuildProject(this, `${serviceName}-web-build-construct`, {
+    const project = new WebBuildProject(this, `web-build-construct`, {
       buildSpec,
-      repository,
-      serviceName
+      repository
     }).entity
 
-    new WebPipeline(this, `${serviceName}-pipeline-construct`, {
+    new WebPipeline(this, `web-pipeline-construct`, {
       project,
       repository,
-      serviceName,
       buckets: this.buckets
     }).entity
 
-    repository.onCommit(`trigger-${serviceName}-web-build`, {
+    repository.onCommit(`trigger-web-build`, {
       target: new targets.CodeBuildProject(project)
     })
   }
@@ -60,8 +56,8 @@ export default class WebCICDStack extends cdk.Stack {
     })
   }
 
-  private makeCFDistribution(stack: cdk.Stack, serviceName: string, s3BucketSource: s3.IBucket) {
-    return new cf.CloudFrontWebDistribution(stack, `${serviceName}-web-cf-distibution`, {
+  private makeCFDistribution(stack: cdk.Stack, s3BucketSource: s3.IBucket) {
+    return new cf.CloudFrontWebDistribution(stack, `web-cf-distibution`, {
       originConfigs: [{
         s3OriginSource: {
           s3BucketSource

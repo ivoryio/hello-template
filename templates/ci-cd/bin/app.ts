@@ -19,8 +19,6 @@ services.forEach(service => {
 })
 
 function createWebCICD() {
-  const serviceName = 'web'
-
-  new WebCICDStack(app, `${serviceName}-ci-cd-stack`, { serviceName })
+  new WebCICDStack(app, `web-ci-cd-stack`)
 }
 

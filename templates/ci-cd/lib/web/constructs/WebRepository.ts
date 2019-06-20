@@ -9,12 +9,11 @@ export default class WebRepository extends cdk.Construct{
   constructor(parent: cdk.Construct, id: string, props: ServiceProps) {
     super(parent, id)
 
-    const { serviceName } = props
-    const repositoryName = `${serviceName}-web-repository`
+    const repositoryName = `web-repository`
 
     this.entity = new codecommit.Repository(this, repositoryName, {
       repositoryName,
-      description: `Git repository for ${serviceName} web app`
+      description: `Git repository for web app`
     })  
   }
 }
