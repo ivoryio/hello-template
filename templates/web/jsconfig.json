@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "jsx": "react",
+    "module": "es6",
+    "paths": {
+      "*": ["app/*", "./packages/*", "../node_modules/*"],
+      "@kogaio/*": ["../node_modules/@ivoryio/kogaio/*"]
+    },
+    "target": "es2015"
+  },
+  "exclude": ["build", "node_modules"]
+}
