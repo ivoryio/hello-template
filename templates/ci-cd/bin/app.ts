@@ -19,6 +19,6 @@ services.forEach(service => {
 })
 
 function createWebCICD() {
-  new WebCICDStack(app, `web-ci-cd-stack`)
+  new WebCICDStack(app, `web-ci-cd-stack`, {})
 }
 
