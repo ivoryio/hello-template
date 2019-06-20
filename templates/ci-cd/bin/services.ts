@@ -45,9 +45,6 @@ const services = [
         }
       }
     })
-  },
-  {
-    name: 'apple'
   }
 ]
 
