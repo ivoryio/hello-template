@@ -1,11 +1,2 @@
-# `web`
-
-> TODO: description
-
-## Usage
-
-```
-const web = require('web');
-
-// TODO: DEMONSTRATE API
-```
+### TODO
+Add description to web template
