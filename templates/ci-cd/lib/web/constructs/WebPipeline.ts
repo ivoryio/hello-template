@@ -14,8 +14,8 @@ export default class WebPipeline extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: WebPipelineProps) {
     super(parent, id)
 
-    const { repository, project, buckets } = props
-    const pipelineName = `web-pipeline`
+    const { repository, project, buckets, projectName } = props
+    const pipelineName = `${projectName}-web-pipeline`
 
     const pipeline = new codepipeline.Pipeline(this, pipelineName, {
       pipelineName

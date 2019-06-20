@@ -4,37 +4,38 @@ import cf = require('@aws-cdk/aws-cloudfront')
 import targets = require('@aws-cdk/aws-events-targets')
 
 import { WebCICDStackProps } from './interfaces'
+import WebPipeline from './constructs/WebPipeline'
 import WebRepository from './constructs/WebRepository'
 import WebBuildProject from './constructs/WebBuildProject'
-import WebPipeline from './constructs/WebPipeline'
-
 
 export default class WebCICDStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: WebCICDStackProps) {
     super(scope, id)
 
-    const { buildSpec } = props
+    const { buildSpec, projectName } = props
 
-    const repository = new WebRepository(this, `web-repository-construct`, {}).entity
+    const repository = new WebRepository(this, `${projectName}-web-repository-construct`, {projectName}).entity
 
     this.buckets = {}
-    this.buckets['staging'] = this.makeBucket(this, 'staging')
-    this.buckets['production'] = this.makeBucket(this, 'production')
+    this.buckets['staging'] = this.makeBucket(this, projectName, 'staging')
+    this.buckets['production'] = this.makeBucket(this, projectName, 'production')
 
-    this.makeCFDistribution(this, this.buckets.production)
+    this.makeCFDistribution(this, projectName, this.buckets.production)
 
-    const project = new WebBuildProject(this, `web-build-construct`, {
+    const project = new WebBuildProject(this, `${projectName}-web-build-construct`, {
       buildSpec,
-      repository
+      repository,
+      projectName
     }).entity
 
-    new WebPipeline(this, `web-pipeline-construct`, {
+    new WebPipeline(this, `${projectName}-web-pipeline-construct`, {
       project,
       repository,
-      buckets: this.buckets
+      buckets: this.buckets,
+      projectName
     }).entity
 
-    repository.onCommit(`trigger-web-build`, {
+    repository.onCommit(`${projectName}-trigger-web-build`, {
       target: new targets.CodeBuildProject(project)
     })
   }
@@ -42,8 +43,8 @@ export default class WebCICDStack extends cdk.Stack {
     [stage: string]: s3.IBucket
   }
 
-  private makeBucket(stack: cdk.Stack, stage: string) {
-    return new s3.Bucket(stack, `web-${stage}-bucket`, {
+  private makeBucket(stack: cdk.Stack, projectName: string, stage: string) {
+    return new s3.Bucket(stack, `${projectName}-web-${stage}-bucket`, {
       publicReadAccess: true,
       blockPublicAccess: {
         blockPublicAcls: false,
@@ -56,8 +57,8 @@ export default class WebCICDStack extends cdk.Stack {
     })
   }
 
-  private makeCFDistribution(stack: cdk.Stack, s3BucketSource: s3.IBucket) {
-    return new cf.CloudFrontWebDistribution(stack, `web-cf-distibution`, {
+  private makeCFDistribution(stack: cdk.Stack, projectName: string, s3BucketSource: s3.IBucket) {
+    return new cf.CloudFrontWebDistribution(stack, `${projectName}-web-cf-distibution`, {
       originConfigs: [{
         s3OriginSource: {
           s3BucketSource

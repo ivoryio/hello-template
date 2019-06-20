@@ -6,7 +6,6 @@ import services from './services'
 import WebCICDStack from '../lib/web/WebCICDStack'
 import ServiceCICDStack from '../lib/services/ServiceCICDStack'
 
-
 const app = new cdk.App()
 
 createWebCICD()
@@ -19,6 +18,10 @@ services.forEach(service => {
 })
 
 function createWebCICD() {
-  new WebCICDStack(app, `web-ci-cd-stack`, {})
+  const projectName = process.env.PROJECT_NAME!
+  if (!projectName) {
+    console.error('Missing env PROJECT_NAME')
+    process.exit(1)
+  }
+  new WebCICDStack(app, `web-ci-cd-stack`, { projectName })
 }
-
