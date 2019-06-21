@@ -25,8 +25,6 @@ export default class WebCICDStack extends cdk.Stack {
     this.buckets['staging'] = this.makeBucket(this, projectName, 'staging')
     this.buckets['production'] = this.makeBucket(this, projectName, 'production')
 
-    // this.makeCFDistribution(this, projectName, this.buckets.production)
-
     const project = new WebBuildProject(this, `${projectName}-web-build-construct`, {
       buildSpec,
       repository,
@@ -59,19 +57,6 @@ export default class WebCICDStack extends cdk.Stack {
       },
       websiteIndexDocument: 'index.html',
       websiteErrorDocument: 'index.html',
-    })
-  }
-
-  private makeCFDistribution(stack: cdk.Stack, projectName: string, s3BucketSource: s3.IBucket) {
-    return new cf.CloudFrontWebDistribution(stack, `${projectName}-web-cf-distibution`, {
-      originConfigs: [{
-        s3OriginSource: {
-          s3BucketSource
-        },
-        behaviors: [{
-          isDefaultBehavior: true
-        }]
-      }]
     })
   }
 }
