@@ -4,8 +4,8 @@
   "description": "Provides a GraphQL API for the entirey system by acting as a microservices data access layer",
   "license": "MIT",
   "scripts": {
-    "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket [YOUR_BUCKET]",
-    "cf:deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name [YOUR_STACK_NAME] --parameter-overrides Environment=development",
+    "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket [DEVELOPMENT_BUCKET]",
+    "cf:deploy": "aws cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name [PROJECT_NAME]-data-gateway-service-dev-stack --parameter-overrides Environment=development",
     "build": "npm i && mkdir -p build && npm run cf:package",
     "deploy": "npm run build && npm run cf:deploy"
   }

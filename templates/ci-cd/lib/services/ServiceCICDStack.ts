@@ -20,7 +20,7 @@ export default class ServiceCICDStack extends cdk.Stack {
       }
     ).entity
 
-    new cdk.CfnOutput(this, `${projectName}-${serviceName}-repository-ssh-url`, {
+    new cdk.CfnOutput(this, `repository-ssh-url`, {
       value: repository.repositoryCloneUrlSsh,
       description: `The SSH URL for cloning the ${projectName} ${serviceName} service`
     })
