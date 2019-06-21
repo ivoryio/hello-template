@@ -40,7 +40,7 @@ export default class ServiceBuildProject extends cdk.Construct {
                 pre_build: {
                     commands: [
                         'mkdir -p build',
-                        'npm ci',
+                        'npm i',
                         'npm run test:unit'
                     ]
                 },
