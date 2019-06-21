@@ -16,11 +16,16 @@ export default class WebCICDStack extends cdk.Stack {
 
     const repository = new WebRepository(this, `${projectName}-web-repository-construct`, {projectName}).entity
 
+    new cdk.CfnOutput(this, `repository-ssh-url`, {
+      value: repository.repositoryCloneUrlSsh,
+      description: `The SSH URL for cloning the ${projectName} web repository`
+    })
+
     this.buckets = {}
     this.buckets['staging'] = this.makeBucket(this, projectName, 'staging')
     this.buckets['production'] = this.makeBucket(this, projectName, 'production')
 
-    this.makeCFDistribution(this, projectName, this.buckets.production)
+    // this.makeCFDistribution(this, projectName, this.buckets.production)
 
     const project = new WebBuildProject(this, `${projectName}-web-build-construct`, {
       buildSpec,

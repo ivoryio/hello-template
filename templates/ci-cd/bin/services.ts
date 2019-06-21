@@ -2,13 +2,13 @@ import s3 = require('@aws-cdk/aws-s3')
 
 const services = [
   {
-    name: 'user-service'
+    name: 'user'
   },
   {
-    name: 'greeter-service'
+    name: 'greeter'
   },
   {
-    name: 'data-gateway-service',
+    name: 'data-gateway',
     // custom build spec, not needed if default one suffices
     makeBuildSpec: (lambdaArtifactsBucket: s3.Bucket) => ({
       version: '0.2',
