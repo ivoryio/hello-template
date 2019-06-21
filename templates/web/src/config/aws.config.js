@@ -3,14 +3,15 @@ import Amplify from 'aws-amplify'
 
 export default Amplify.configure({
   Auth: {
-    region: 'us-east-1',
-    userPoolId: 'us-east-1_bgRfDvBOK',
-    userPoolWebClientId: '5encj2aqvrkcdohucih5aan743'
+    region: process.env.REACT_APP_REGION,
+    userPoolId: process.env.REACT_APP_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_USER_POOL_WEB_CLIENT_ID
   },
   aws_appsync_graphqlEndpoint:
-    'https://j4wy5aooxbdtrf6vir7u575rua.appsync-api.us-east-1.amazonaws.com/graphql',
-  aws_appsync_region: 'us-east-1',
-  aws_appsync_authenticationType: 'AMAZON_COGNITO_USER_POOLS',
+    process.env.REACT_APP_AWS_APPSYNC_GRAPHQL_ENDPOINT,
+  aws_appsync_region: process.env.REACT_APP_AWS_APPSYNC_REGION,
+  aws_appsync_authenticationType:
+    process.env.REACT_APP_AWS_APPSYNC_AUTHENTICATION_TYPE,
   API: {
     graphql_headers: async () => ({})
   }

@@ -1,26 +1,31 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { navigate } from '@reach/router'
 
-import Touchable from '@kogaio/Touchable'
-import { Flex } from '@kogaio/Responsive'
-import Typography from '@kogaio/Typography'
+import { UserMenu } from '@user'
+import { Flex, Space, TopBar, Touchable, Typography } from '@kogaio'
 
-const Header = () => {
-  const _escapeToLanding = () => navigate('/')
-  return (
-    <Flex
-      alignItems='center'
-      bg='gunmetal'
-      height='80px'
-      justifyContent='center'
-      width={1}>
-      <Touchable effect='opacity' onClick={_escapeToLanding}>
-        <Typography color='white' variant='h3'>
-          Welcome
-        </Typography>
-      </Touchable>
-    </Flex>
-  )
+const Header = ({ user }) =>
+  user ? (
+    <Space px={4} height='60px'>
+      <TopBar bg='gunmetal'>
+        <Flex alignItems='center' justifyContent='space-between' width={1}>
+          <Touchable effect='opacity' onClick={() => navigate('/')}>
+            <Typography
+              color='white'
+              data-testid='dashboard-title'
+              fontSize={3}>
+              Dashboard
+            </Typography>
+          </Touchable>
+          <UserMenu user={user} />
+        </Flex>
+      </TopBar>
+    </Space>
+  ) : null
+
+Header.propTypes = {
+  user: PropTypes.object
 }
 
 export default Header

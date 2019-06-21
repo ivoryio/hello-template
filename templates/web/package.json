@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "build": "sh -ac '. .env.${REACT_APP_ENV}; react-app-rewired build'",
+    "build:staging": "REACT_APP_ENV=staging yarn run build --silent",
+    "build:production": "REACT_APP_ENV=production yarn run build --silent",
     "lint": "eslint .",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "config-overrides-path": "src/config/config-overrides",
@@ -24,6 +26,7 @@
     "aws-amplify": "^1.1.29",
     "aws-amplify-react": "^2.3.9",
     "aws-appsync": "^1.8.1",
+    "formik": "^1.5.7",
     "graphql-tag": "^2.10.1",
     "react": "^16.8.6",
     "react-apollo": "^2.5.6",

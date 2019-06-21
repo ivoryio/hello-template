@@ -4,16 +4,16 @@ import { Authenticator } from 'aws-amplify-react'
 
 import { SignIn, SignUp } from './screens'
 
-const AuthEntry = ({ currentUser }) =>
-  !currentUser ? (
-    <Authenticator authState='signIn' hideDefault>
-      <SignIn />
-      <SignUp />
-    </Authenticator>
-  ) : null
+const Auth = props => (
+  <Authenticator id='authenticator' authState='signIn' hideDefault>
+    <SignIn {...props} />
+    <SignUp {...props} />
+  </Authenticator>
+)
 
-AuthEntry.propTypes = {
-  currentUser: PropTypes.object
+Auth.propTypes = {
+  location: PropTypes.object,
+  navigate: PropTypes.func
 }
 
-export default AuthEntry
+export default Auth
