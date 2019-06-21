@@ -92,7 +92,12 @@ export default class ServicePipeline extends cdk.Construct {
       runOrder: 2
     })
 
-    return [createChangeSetAction, executeChangeSetAction]
+    const manualApprovalAction = new cpa.ManualApprovalAction({
+      actionName: 'ApproveDeploymentToProduction',
+      runOrder: 3
+    })
+
+    return [createChangeSetAction, executeChangeSetAction, manualApprovalAction]
   }
   private makeDeployProductionActions(buildAction: cpa.CodeBuildAction, serviceName: string) {
     const changeSetName = 'ProductionChangeSet'
@@ -115,18 +120,13 @@ export default class ServicePipeline extends cdk.Construct {
       runOrder: 1
     })
 
-    const manualApprovalAction = new cpa.ManualApprovalAction({
-      actionName: 'ApproveChanges',
-      runOrder: 2
-    })
-
     const executeChangeSetAction = new cpa.CloudFormationExecuteChangeSetAction({
       actionName: 'ExecuteChanges',
       stackName,
       changeSetName,
-      runOrder: 3
+      runOrder: 2
     })
 
-    return [createChangeSetAction, manualApprovalAction, executeChangeSetAction]
+    return [createChangeSetAction, executeChangeSetAction]
   }
 }
