@@ -17,7 +17,7 @@ if (!projectName) {
 createWebCICD()
 
 services.forEach(service => {
-  new ServiceCICDStack(app, `${projectName}-${service.name}-ci-cd-stack`, {
+  new ServiceCICDStack(app, `${projectName}-${service.name}-ci-cd`, {
     projectName,
     serviceName: service.name,
     makeBuildSpec: service.makeBuildSpec
@@ -25,5 +25,5 @@ services.forEach(service => {
 })
 
 function createWebCICD() {
-  new WebCICDStack(app, `${projectName}-web-ci-cd-stack`, { projectName })
+  new WebCICDStack(app, `${projectName}-web-ci-cd`, { projectName })
 }

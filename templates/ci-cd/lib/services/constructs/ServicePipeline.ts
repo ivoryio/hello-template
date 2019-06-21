@@ -66,7 +66,7 @@ export default class ServicePipeline extends cdk.Construct {
   }
   private makeDeployStagingActions(buildAction: cpa.CodeBuildAction, serviceName: string) {
     const changeSetName = 'StagingChangeSet'
-    const stackName = `${serviceName}-staging-stack`
+    const stackName = `${serviceName}-staging`
 
     const templatePath = buildAction.outputs
       .find(t => t.artifactName === 'template')!
@@ -96,7 +96,7 @@ export default class ServicePipeline extends cdk.Construct {
   }
   private makeDeployProductionActions(buildAction: cpa.CodeBuildAction, serviceName: string) {
     const changeSetName = 'ProductionChangeSet'
-    const stackName = `${serviceName}-production-stack`
+    const stackName = `${serviceName}-production`
 
     const templatePath = buildAction.outputs
       .find(t => t.artifactName === 'template')!
