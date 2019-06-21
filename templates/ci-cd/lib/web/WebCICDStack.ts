@@ -25,7 +25,7 @@ export default class WebCICDStack extends cdk.Stack {
     this.buckets['staging'] = this.makeBucket(this, projectName, 'staging')
     this.buckets['production'] = this.makeBucket(this, projectName, 'production')
 
-    this.makeCFDistribution(this, projectName, this.buckets.production)
+    // this.makeCFDistribution(this, projectName, this.buckets.production)
 
     const project = new WebBuildProject(this, `${projectName}-web-build-construct`, {
       buildSpec,
