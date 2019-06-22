@@ -7,7 +7,6 @@ import cpa = require('@aws-cdk/aws-codepipeline-actions')
 import { ServicePipelineProps } from './interfaces'
 
 export default class ServicePipeline extends cdk.Construct {
-
   public readonly entity: codepipeline.Pipeline
 
   constructor(parent: cdk.Construct, id: string, props: ServicePipelineProps) {
@@ -30,13 +29,19 @@ export default class ServicePipeline extends cdk.Construct {
       actions: [buildAction]
     })
 
-    const deployStagingActions = this.makeDeployStagingActions(buildAction, props.serviceName)
+    const deployStagingActions = this.makeDeployStagingActions(
+      buildAction,
+      props.serviceName
+    )
     pipeline.addStage({
       name: 'DeployStaging',
       actions: deployStagingActions
     })
 
-    const deployProdActions = this.makeDeployProductionActions(buildAction, props.serviceName)
+    const deployProdActions = this.makeDeployProductionActions(
+      buildAction,
+      props.serviceName
+    )
     pipeline.addStage({
       name: 'DeployProduction',
       actions: deployProdActions
@@ -52,7 +57,10 @@ export default class ServicePipeline extends cdk.Construct {
       output: new codepipeline.Artifact()
     })
   }
-  private makeBuildAction(sourceAction: cpa.CodeCommitSourceAction, project: codebuild.Project) {
+  private makeBuildAction(
+    sourceAction: cpa.CodeCommitSourceAction,
+    project: codebuild.Project
+  ) {
     return new cpa.CodeBuildAction({
       actionName: 'BuildService',
       project,
@@ -64,7 +72,10 @@ export default class ServicePipeline extends cdk.Construct {
       ]
     })
   }
-  private makeDeployStagingActions(buildAction: cpa.CodeBuildAction, serviceName: string) {
+  private makeDeployStagingActions(
+    buildAction: cpa.CodeBuildAction,
+    serviceName: string
+  ) {
     const changeSetName = 'StagingChangeSet'
     const stackName = `${serviceName}-staging`
 
@@ -75,31 +86,33 @@ export default class ServicePipeline extends cdk.Construct {
       .find(t => t.artifactName === 'staging_parameters')!
       .atPath('staging.json')
 
-    const createChangeSetAction = new cpa.CloudFormationCreateReplaceChangeSetAction({
-      actionName: 'PrepareChanges',
-      stackName,
-      changeSetName,
-      adminPermissions: true,
-      templatePath,
-      templateConfiguration,
-      runOrder: 1
-    })
+    const createChangeSetAction = new cpa.CloudFormationCreateReplaceChangeSetAction(
+      {
+        actionName: 'PrepareChanges',
+        stackName,
+        changeSetName,
+        adminPermissions: true,
+        templatePath,
+        templateConfiguration,
+        runOrder: 1
+      }
+    )
 
-    const executeChangeSetAction = new cpa.CloudFormationExecuteChangeSetAction({
-      actionName: 'ExecuteChanges',
-      stackName,
-      changeSetName,
-      runOrder: 2
-    })
+    const executeChangeSetAction = new cpa.CloudFormationExecuteChangeSetAction(
+      {
+        actionName: 'ExecuteChanges',
+        stackName,
+        changeSetName,
+        runOrder: 2
+      }
+    )
 
-    const manualApprovalAction = new cpa.ManualApprovalAction({
-      actionName: 'ApproveDeploymentToProduction',
-      runOrder: 3
-    })
-
-    return [createChangeSetAction, executeChangeSetAction, manualApprovalAction]
+    return [createChangeSetAction, executeChangeSetAction]
   }
-  private makeDeployProductionActions(buildAction: cpa.CodeBuildAction, serviceName: string) {
+  private makeDeployProductionActions(
+    buildAction: cpa.CodeBuildAction,
+    serviceName: string
+  ) {
     const changeSetName = 'ProductionChangeSet'
     const stackName = `${serviceName}-production`
 
@@ -110,23 +123,32 @@ export default class ServicePipeline extends cdk.Construct {
       .find(t => t.artifactName === 'production_parameters')!
       .atPath('production.json')
 
-    const createChangeSetAction = new cpa.CloudFormationCreateReplaceChangeSetAction({
-      actionName: 'PrepareChanges',
-      stackName,
-      changeSetName,
-      adminPermissions: true,
-      templatePath,
-      templateConfiguration,
+    const manualApprovalAction = new cpa.ManualApprovalAction({
+      actionName: 'ApproveDeployment',
       runOrder: 1
     })
 
-    const executeChangeSetAction = new cpa.CloudFormationExecuteChangeSetAction({
-      actionName: 'ExecuteChanges',
-      stackName,
-      changeSetName,
-      runOrder: 2
-    })
+    const createChangeSetAction = new cpa.CloudFormationCreateReplaceChangeSetAction(
+      {
+        actionName: 'PrepareChanges',
+        stackName,
+        changeSetName,
+        adminPermissions: true,
+        templatePath,
+        templateConfiguration,
+        runOrder: 2
+      }
+    )
 
-    return [createChangeSetAction, executeChangeSetAction]
+    const executeChangeSetAction = new cpa.CloudFormationExecuteChangeSetAction(
+      {
+        actionName: 'ExecuteChanges',
+        stackName,
+        changeSetName,
+        runOrder: 3
+      }
+    )
+
+    return [manualApprovalAction, createChangeSetAction, executeChangeSetAction]
   }
 }
