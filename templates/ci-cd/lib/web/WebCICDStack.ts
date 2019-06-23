@@ -2,6 +2,7 @@ import cdk = require('@aws-cdk/cdk')
 import s3 = require('@aws-cdk/aws-s3')
 import cf = require('@aws-cdk/aws-cloudfront')
 import targets = require('@aws-cdk/aws-events-targets')
+import iam = require('@aws-cdk/aws-iam')
 
 import { WebCICDStackProps } from './interfaces'
 import WebPipeline from './constructs/WebPipeline'
@@ -42,6 +43,7 @@ export default class WebCICDStack extends cdk.Stack {
         env: 'staging'
       }
     ).entity
+    stagingBuildProject.role!.attachManagedPolicy('arn:aws:iam::aws:policy/AmazonSSMFullAccess')
 
     const productionBuildProject = new WebBuildProject(
       this,
@@ -53,6 +55,7 @@ export default class WebCICDStack extends cdk.Stack {
         env: 'production'
       }
     ).entity
+    productionBuildProject.role!.attachManagedPolicy('arn:aws:iam::aws:policy/AmazonSSMFullAccess')
 
     new WebPipeline(this, `${projectName}-web-pipeline`, {
       repository,
