@@ -14,36 +14,53 @@ export default class WebCICDStack extends cdk.Stack {
 
     const { buildSpec, projectName } = props
 
-    const repository = new WebRepository(this, `${projectName}-web-repository-construct`, {projectName}).entity
+    const repository = new WebRepository(
+      this,
+      `${projectName}-web-repository`,
+      { projectName }
+    ).entity
 
     new cdk.CfnOutput(this, `repository-ssh-url`, {
       value: repository.repositoryCloneUrlSsh,
       description: `The SSH URL for cloning the ${projectName} web repository`
     })
 
-    this.buckets = {}
-    this.buckets['staging'] = this.makeBucket(this, projectName, 'staging')
-    this.buckets['production'] = this.makeBucket(this, projectName, 'production')
+    const buckets: {
+      [stage: string]: s3.IBucket
+    } = {}
 
-    const project = new WebBuildProject(this, `${projectName}-web-build-construct`, {
-      buildSpec,
+    buckets['staging'] = this.makeBucket(this, projectName, 'staging')
+    buckets['production'] = this.makeBucket(this, projectName, 'production')
+
+    const stagingBuildProject = new WebBuildProject(
+      this,
+      `${projectName}-web-build-staging`,
+      {
+        buildSpec,
+        repository,
+        projectName,
+        env: 'staging'
+      }
+    ).entity
+
+    const productionBuildProject = new WebBuildProject(
+      this,
+      `${projectName}-web-build-production`,
+      {
+        buildSpec,
+        repository,
+        projectName,
+        env: 'production'
+      }
+    ).entity
+
+    new WebPipeline(this, `${projectName}-web-pipeline`, {
       repository,
-      projectName
+      projectName,
+      buckets: buckets,
+      stagingBuildProject,
+      productionBuildProject
     }).entity
-
-    new WebPipeline(this, `${projectName}-web-pipeline-construct`, {
-      project,
-      repository,
-      buckets: this.buckets,
-      projectName
-    }).entity
-
-    repository.onCommit(`${projectName}-trigger-web-build`, {
-      target: new targets.CodeBuildProject(project)
-    })
-  }
-  private buckets: {
-    [stage: string]: s3.IBucket
   }
 
   private makeBucket(stack: cdk.Stack, projectName: string, stage: string) {
@@ -56,7 +73,7 @@ export default class WebCICDStack extends cdk.Stack {
         restrictPublicBuckets: false
       },
       websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html',
+      websiteErrorDocument: 'index.html'
     })
   }
 }

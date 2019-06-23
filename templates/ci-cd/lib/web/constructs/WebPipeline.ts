@@ -7,73 +7,106 @@ import codepipeline = require('@aws-cdk/aws-codepipeline')
 
 import { WebPipelineProps } from './interfaces'
 
-
 export default class WebPipeline extends cdk.Construct {
   public readonly entity: codepipeline.IPipeline
 
   constructor(parent: cdk.Construct, id: string, props: WebPipelineProps) {
     super(parent, id)
 
-    const { repository, project, buckets, projectName } = props
-    const pipelineName = `${projectName}-web-pipeline`
+    const {
+      repository,
+      stagingBuildProject,
+      productionBuildProject,
+      buckets,
+      projectName
+    } = props
 
+    const pipelineName = `${projectName}-web-pipeline`
     const pipeline = new codepipeline.Pipeline(this, pipelineName, {
       pipelineName
     })
 
-    const sourceAction = this.makeSourceAction(repository)
+    const sourceAction = this.setUpSourceStage(pipeline, repository)
+
+    this.setUpStagingStage(
+      buckets.staging,
+      stagingBuildProject,
+      pipeline,
+      sourceAction
+    )
+    this.setUpProductionStage(
+      buckets.production,
+      productionBuildProject,
+      pipeline,
+      sourceAction
+    )
+
+    this.entity = pipeline
+  }
+
+  private setUpSourceStage(
+    pipeline: codepipeline.Pipeline,
+    repository: codecommit.IRepository
+  ) {
+    const sourceAction = new cpa.CodeCommitSourceAction({
+      repository,
+      actionName: 'GetLatestChanges',
+      output: new codepipeline.Artifact()
+    })
+
     pipeline.addStage({
       name: 'Source',
       actions: [sourceAction]
     })
 
-    const buildAction = this.makeBuildAction(sourceAction, project)
-    pipeline.addStage({
-      name: 'Build',
-      actions: [buildAction]
-    })
-    
-    const deployStagingAction = this.makeDeployStagingAction(buildAction, buckets.staging)
-    pipeline.addStage({
-      name: 'DeployStaging',
-      actions: [deployStagingAction]
-    })
-
-    const deployProductionActions = this.makeDeployProductionActions(buildAction, buckets.production)
-    pipeline.addStage({
-      name: 'DeployProduction',
-      actions: deployProductionActions
-    })
-
-    this.entity = pipeline
+    return sourceAction
   }
 
-  private makeSourceAction(repository: codecommit.IRepository) {
-    return new cpa.CodeCommitSourceAction({
-      repository,
-      actionName: 'GetLatestChanges',
-      output: new codepipeline.Artifact()
-    })
-  }
-
-  private makeBuildAction(sourceAction: cpa.CodeCommitSourceAction, project: codebuild.IProject) {
-    return new cpa.CodeBuildAction({
+  private setUpStagingStage(
+    bucket: s3.IBucket,
+    project: codebuild.IProject,
+    pipeline: codepipeline.Pipeline,
+    sourceAction: cpa.CodeCommitSourceAction
+  ) {
+    const stagingBuildAction = new cpa.CodeBuildAction({
       project,
-      actionName: 'BuildWebApp',
+      actionName: 'Build',
+      input: sourceAction.outputs[0],
+      output: new codepipeline.Artifact(),
+      runOrder: 1
+    })
+
+    const deployStagingAction = new cpa.S3DeployAction({
+      bucket,
+      input: stagingBuildAction.outputs[0],
+      actionName: 'DeployToS3Bucket',
+      runOrder: 2
+    })
+
+    pipeline.addStage({
+      name: 'DeployToStaging',
+      actions: [stagingBuildAction, deployStagingAction]
+    })
+  }
+
+  private setUpProductionStage(
+    bucket: s3.IBucket,
+    project: codebuild.IProject,
+    pipeline: codepipeline.Pipeline,
+    sourceAction: cpa.CodeCommitSourceAction
+  ) {
+    const productionBuildAction = new cpa.CodeBuildAction({
+      project,
+      actionName: 'Build',
       input: sourceAction.outputs[0],
       output: new codepipeline.Artifact()
     })
-  }
 
-  private makeDeployStagingAction(buildAction: cpa.CodeBuildAction, bucket: s3.IBucket) {
-    return new cpa.S3DeployAction({
-      bucket,
-      input: buildAction.outputs[0],
-      actionName: 'DeployWebApp'
+    pipeline.addStage({
+      name: 'BuildForProduction',
+      actions: [productionBuildAction]
     })
-  }
 
-  private makeDeployProductionActions(buildAction: cpa.CodeBuildAction, bucket: s3.IBucket) {
     const manualApprovalAction = new cpa.ManualApprovalAction({
       runOrder: 1,
       actionName: 'ApproveChanges'
@@ -83,9 +116,12 @@ export default class WebPipeline extends cdk.Construct {
       bucket,
       runOrder: 2,
       actionName: 'DeployWebApp',
-      input: buildAction.outputs[0]
+      input: productionBuildAction.outputs[0]
     })
 
-    return [manualApprovalAction, deployToProductionBucket]
+    pipeline.addStage({
+      name: 'DeployToProduction',
+      actions: [manualApprovalAction, deployToProductionBucket]
+    })
   }
 }

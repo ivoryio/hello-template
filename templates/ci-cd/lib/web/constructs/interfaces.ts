@@ -5,12 +5,14 @@ import codecommit = require('@aws-cdk/aws-codecommit')
 import { ServiceProps } from '../../constructs/interfaces'
 
 export interface WebBuildProjectProps extends ServiceProps {
+  env: 'staging' | 'production'
   buildSpec?: string
   repository: codecommit.IRepository
 }
 
 export interface WebPipelineProps extends ServiceProps {
   buckets: { [stage: string]: s3.IBucket }
-  project: codebuild.IProject
+  stagingBuildProject: codebuild.IProject
+  productionBuildProject: codebuild.IProject
   repository: codecommit.IRepository
 }
