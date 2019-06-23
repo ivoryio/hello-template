@@ -6,7 +6,7 @@ var ssm = new AWS.SSM({ apiVersion: '2014-11-06', region: 'us-east-1' })
 const appParameters = [
   {
     ssm: `ivory-project-region`,
-    react: [`REGION_PLACEHOLDER`, 'APPSYNC_REGION_PLACEHOLDER']
+    react: ['APPSYNC_REGION_PLACEHOLDER', `REGION_PLACEHOLDER`]
   },
   {
     ssm: `user-service-pool-id-${process.env.ENVIRONMENT}`,
