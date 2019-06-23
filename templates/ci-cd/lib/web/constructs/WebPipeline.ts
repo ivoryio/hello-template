@@ -95,33 +95,33 @@ export default class WebPipeline extends cdk.Construct {
     pipeline: codepipeline.Pipeline,
     sourceAction: cpa.CodeCommitSourceAction
   ) {
+    const manualApprovalAction = new cpa.ManualApprovalAction({
+      runOrder: 1,
+      actionName: 'ApproveChanges'
+    })
+
     const productionBuildAction = new cpa.CodeBuildAction({
+      runOrder: 2,
       project,
       actionName: 'Build',
       input: sourceAction.outputs[0],
       output: new codepipeline.Artifact()
     })
 
-    pipeline.addStage({
-      name: 'BuildForProduction',
-      actions: [productionBuildAction]
-    })
-
-    const manualApprovalAction = new cpa.ManualApprovalAction({
-      runOrder: 1,
-      actionName: 'ApproveChanges'
-    })
-
     const deployToProductionBucket = new cpa.S3DeployAction({
       bucket,
-      runOrder: 2,
+      runOrder: 3,
       actionName: 'DeployWebApp',
       input: productionBuildAction.outputs[0]
     })
 
     pipeline.addStage({
       name: 'DeployToProduction',
-      actions: [manualApprovalAction, deployToProductionBucket]
+      actions: [
+        manualApprovalAction,
+        productionBuildAction,
+        deployToProductionBucket
+      ]
     })
   }
 }
