@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "sh -ac '. .env.${REACT_APP_ENV}; react-app-rewired build'",
-    "build:staging": "REACT_APP_ENV=staging yarn run build --silent",
-    "build:production": "REACT_APP_ENV=production yarn run build --silent",
+    "build": "react-app-rewired build",
+    "build:staging": "env-cmd -f ./.env.staging npm run build",
+    "build:production": "env-cmd -f ./.env.production npm run build",
     "lint": "eslint .",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
@@ -27,6 +27,7 @@
     "aws-amplify-react": "^2.3.9",
     "aws-appsync": "^1.8.1",
     "aws-sdk": "^2.480.0",
+    "env-cmd": "^9.0.3",
     "formik": "^1.5.7",
     "graphql-tag": "^2.10.1",
     "react": "^16.8.6",
