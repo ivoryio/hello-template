@@ -2,30 +2,18 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
-  ServiceName:
-    Type: String
-    Default: 'data-gateway-service'
-
   Environment:
     Type: String
-    AllowedValues:
+    AllowedValues: # Changing one of these values require change in multiple places!
       - 'development'
       - 'staging'
       - 'production'
 
 Resources:
-  ### Roles ###
   LoggingRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName:
-        !Join [
-          '-',
-          [
-            '{{resolve:ssm:project-name:1}}',
-            !Sub '${ServiceName}-logging-role-${Environment}',
-          ],
-        ]
+      RoleName: !Sub 'data-gateway-logging-role-${Environment}'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -56,17 +44,17 @@ Resources:
               - Effect: Allow
                 Action: lambda:invokeFunction
                 Resource:
-                  - !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
+                  - !Sub '{{resolve:ssm:greeter-graphql-resolver-${Environment}:1}}'
 
   GraphQLAPI:
     Type: AWS::AppSync::GraphQLApi
     Properties:
-      Name: !Sub '${ServiceName}-graphqlapi-${Environment}'
+      Name: !Sub 'data-gateway-graphqlapi-${Environment}'
       AuthenticationType: AMAZON_COGNITO_USER_POOLS
       UserPoolConfig:
         AwsRegion: !Sub ${AWS::Region}
         DefaultAction: 'ALLOW'
-        UserPoolId: !Sub '{{resolve:ssm:user-service-user-pool-id-${Environment}:1}}'
+        UserPoolId: !Sub '{{resolve:ssm:user-service-pool-id-${Environment}:1}}'
 
   GraphQLSchema:
     Type: AWS::AppSync::GraphQLSchema
@@ -90,7 +78,7 @@ Resources:
       Name: !Sub 'data_gateway_datasource_${Environment}'
       ApiId: !GetAtt GraphQLAPI.ApiId
       LambdaConfig:
-        LambdaFunctionArn: !Sub '{{resolve:ssm:greeter-service-graphql-resolver-${Environment}:1}}'
+        LambdaFunctionArn: !Sub '{{resolve:ssm:greeter-graphql-resolver-${Environment}:1}}'
       ServiceRoleArn: !GetAtt InvokeLambdaRole.Arn
       Type: AWS_LAMBDA
 
@@ -127,3 +115,12 @@ Resources:
             "arguments": $utils.toJson($context.args)}
         }
       ResponseMappingTemplate: $utils.toJson($context.result)
+
+  GraphQLAPIUrlParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub 'data-gateway-url-${Environment}'
+      Type: String
+      Value: !GetAtt GraphQLAPI.GraphQLUrl
+      Description:
+        !Sub 'The GraphQLUrl for the data-gateway to be used in ${Environment}'
