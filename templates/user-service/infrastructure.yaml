@@ -90,7 +90,7 @@ Resources:
               'ForAnyValue:StringLike':
                 'cognito-identity.amazonaws.com:amr': authenticated
       Policies:
-        - PolicyName: !Sub '${ServiceName}-cognito-authorized-policy'
+        - PolicyName: !Sub 'user-cognito-authorized-policy'
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -126,7 +126,7 @@ Resources:
               'ForAnyValue:StringLike':
                 'cognito-identity.amazonaws.com:amr': unauthenticated
       Policies:
-        - PolicyName: !Sub '${ServiceName}-cognito-unauthorized-policy'
+        - PolicyName: !Sub 'user-cognito-unauthorized-policy'
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
