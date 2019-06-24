@@ -90,7 +90,12 @@ export default class WebCICDStack extends cdk.Stack {
     env: 'staging' | 'production'
   ) {
     const id = `${this.projectName}-web-cf-${env}`
-    const props = {
+    const props : cf.CloudFrontWebDistributionProps = {
+      errorConfigurations: [{
+        errorCode: 403,
+        responseCode: 200,
+        responsePagePath: '/index.html'
+      }],
       originConfigs: [
         {
           s3OriginSource: {
