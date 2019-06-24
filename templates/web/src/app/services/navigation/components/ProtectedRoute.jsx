@@ -6,6 +6,7 @@ import AuthContext from '../../AuthContext'
 import { withLocation } from '../withLocation'
 
 const ProtectedRoute = ({
+  children,
   component: Component,
   location: { pathname, ...location },
   ...rest
@@ -13,7 +14,9 @@ const ProtectedRoute = ({
   <AuthContext.Consumer>
     {({ currentUser }) =>
       currentUser ? (
-        <Component {...rest} />
+        <Component currentUser={currentUser} {...location} {...rest}>
+          {children}
+        </Component>
       ) : (
         <Redirect
           from={pathname}
@@ -26,6 +29,7 @@ const ProtectedRoute = ({
 )
 
 ProtectedRoute.propTypes = {
+  children: PropTypes.node,
   component: PropTypes.func,
   location: PropTypes.object
 }

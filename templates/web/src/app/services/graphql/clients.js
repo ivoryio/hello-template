@@ -1,4 +1,4 @@
-import { Auth } from 'aws-amplify'
+import Auth from '@aws-amplify/auth'
 import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
 import awsconfig from 'config/aws.config'
 
