@@ -28,8 +28,8 @@ export default class WebCICDStack extends cdk.Stack {
       const stagingRecordName = `app.staging`
       const productionRecordName = `app`
 
-      this.createAlias(stagingRecordName, stagingDist)
-      this.createAlias(productionRecordName, productionDist)
+      this.createAlias(stagingRecordName, stagingDist, 'staging')
+      this.createAlias(productionRecordName, productionDist, 'production')
     }
 
     this.createStackOutputs(repository)
@@ -110,10 +110,11 @@ export default class WebCICDStack extends cdk.Stack {
 
   private createAlias(
     recordName: string,
-    distibution: cf.CloudFrontWebDistribution
+    distibution: cf.CloudFrontWebDistribution,
+    env: 'staging' | 'production'
   ) {
     const hostedZoneId = process.env.HOSTED_ZONE_ID!
-    const id = `${this.projectName}-zone`
+    const id = `${this.projectName}-zone-${env}`
     const props = {
       hostedZoneId,
       zoneName: 'ivory.io'
