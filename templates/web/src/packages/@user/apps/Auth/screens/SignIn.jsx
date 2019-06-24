@@ -15,55 +15,20 @@ import {
 } from '@kogaio'
 
 import icons from '@user/assets/icons'
-import api from '@user/services/user.dataservice'
-import { getQueryParam } from '@shared-utils/funcs'
-import { required, emailFormat } from '../services/validators'
 
 import { ValidatedInput } from '../components'
+import { withSignIn } from '../services/authHoC'
+import { required, emailFormat } from '../services/validators'
 
 const SignIn = ({
   authData,
   authState,
-  navigate,
   onAuthEvent,
   onStateChange,
+  requestSignIn,
   ...props
 }) => {
   if (!['signIn', 'signedOut', 'signedUp'].includes(authState)) return null
-
-  const _handleStateChange = (newState, params = null) => () =>
-    onStateChange(newState, params)
-
-  const _requestSignIn = async ({ email, password }, actions) => {
-    const { setStatus, setSubmitting } = actions
-    setStatus(null)
-    try {
-      await api.signIn(email, password)
-      redirectToStoredPath()
-    } catch (err) {
-      handleAuthError(err)
-    } finally {
-      setSubmitting(false)
-    }
-
-    function redirectToStoredPath () {
-      const redirectPath = getQueryParam('redirectTo') || '/'
-      return navigate(redirectPath, { replace: true })
-    }
-    function handleAuthError (err) {
-      if (typeof err === 'object') {
-        const { message, code } = err
-        if (code === 'UserNotFoundException')
-          return _handleStateChange('signUp', {
-            email,
-            password
-          })()
-
-        return setStatus(`* ${message}`)
-      }
-      setStatus(`* Error caught: ${err}`)
-    }
-  }
 
   return (
     <Flex
@@ -91,8 +56,11 @@ const SignIn = ({
           </Space>
           <Box width={{ xs: 1, sm: 3 / 4, lg: 2 / 3 }}>
             <Formik
-              initialValues={{ email: authData.email || '', password: '' }}
-              onSubmit={_requestSignIn}
+              initialValues={{
+                email: authData ? authData.email : '',
+                password: ''
+              }}
+              onSubmit={requestSignIn}
               render={({
                 values: { email, password },
                 status,
@@ -100,10 +68,10 @@ const SignIn = ({
                 isSubmitting
               }) => (
                 <Space mt={4}>
-                  <Form noValidate onSubmit={handleSubmit}>
+                  <Form onSubmit={handleSubmit} noValidate>
                     <ValidatedInput
-                      autoComplete='username'
-                      dataTestId='username-input-signin'
+                      autoComplete='signin-username'
+                      dataTestId='signin-username-input'
                       label='Email'
                       name='email'
                       placeholder='Email'
@@ -112,8 +80,8 @@ const SignIn = ({
                       value={email}
                     />
                     <ValidatedInput
-                      autoComplete='current-password'
-                      dataTestId='password-input-signin'
+                      autoComplete='signin-current'
+                      dataTestId='signin-password-input'
                       label='Password'
                       name='password'
                       placeholder='Password'
@@ -143,7 +111,7 @@ const SignIn = ({
             <Touchable
               data-testid='anchor-to-signup'
               effect='opacity'
-              onClick={_handleStateChange('signUp')}
+              onClick={() => onStateChange('signUp')}
               width={1}>
               <Typography variant='link'>
                 You do not have an account yet? Sign up!
@@ -158,15 +126,14 @@ const SignIn = ({
 
 SignIn.propTypes = {
   authData: PropTypes.object,
-  authState: PropTypes.string.isRequired,
-  navigate: PropTypes.func,
+  authState: PropTypes.string,
   onAuthEvent: PropTypes.func,
-  onStateChange: PropTypes.func
+  onStateChange: PropTypes.func,
+  requestSignIn: PropTypes.func
 }
 
 SignIn.defaultProps = {
-  authState: 'signIn',
   authData: {}
 }
 
-export default SignIn
+export default withSignIn(SignIn)

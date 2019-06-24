@@ -16,23 +16,17 @@ const ValidatedInput = ({
   validate: validations,
   value
 }) => {
-  const _validateField = () => {
-    for (let validation of validations) {
-      const result = validation(value)
-      if (result) {
-        return result
-      }
-    }
-    return ''
-  }
+  const _validateField = () =>
+    validations.length
+      ? validations.reduce((acc, fn) => acc || fn(value), '')
+      : ''
+
   const showValidFeedback = (touched, errors) => {
-    if (!showValid) {
-      return null
-    }
-    if (touched[name] && !errors[name]) {
-      return capitalizeFirstChar(showValid)
-    }
+    if (!showValid) return null
+
+    if (touched[name] && !errors[name]) return capitalizeFirstChar(showValid)
   }
+
   return (
     <Field
       name={name}
@@ -43,13 +37,13 @@ const ValidatedInput = ({
           {...props}
           autoComplete={autoComplete}
           dataTestId={dataTestId}
-          type={type}
-          name={name}
+          error={touched[name] && errors[name]}
           label={label}
+          name={name}
           placeholder={placeholder}
           required={required}
+          type={type}
           valid={showValidFeedback(touched, errors)}
-          error={touched[name] && errors[name]}
         />
       )}
     />

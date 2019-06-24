@@ -16,8 +16,8 @@ import {
 
 import icons from '@user/assets/icons'
 import { ValidatedInput } from '../components'
+import { withSignUp } from '../services/authHoC'
 import { required, emailFormat, passwordFormat } from '../services/validators'
-import api from '@user/services/user.dataservice'
 
 const options = [
   {
@@ -39,49 +39,11 @@ const SignUp = ({
   authState,
   onAuthEvent,
   onStateChange,
+  requestSignUp,
   ...props
 }) => {
   if (authState !== 'signUp') return null
 
-  const _handleStateChange = (newState, params) => () => {
-    onStateChange(newState, params)
-  }
-
-  const _signUp = async (values, actions) => {
-    const { setStatus, setSubmitting } = actions
-    setStatus(null)
-
-    const { email, password, firstName, familyName, city, country } = values
-    try {
-      const response = await api.signUp({
-        username: email,
-        password,
-        attributes: {
-          name: firstName,
-          'family_name': familyName,
-          'custom:city': city,
-          'custom:country': country
-        }
-      })
-
-      if (response) {
-        const { username } = response.user
-        _handleStateChange('signIn', { email: username })()
-      } else {
-        setStatus(
-          '* Unexpected error caught. Please try again in a few moments.'
-        )
-      }
-    } catch (err) {
-      if (typeof err === 'object') {
-        const { message } = err
-        return setStatus(`* ${message}`)
-      }
-      setStatus(`* Error caught: ${err}`)
-    } finally {
-      setSubmitting(false)
-    }
-  }
   return (
     <Flex
       alignItems='center'
@@ -106,17 +68,16 @@ const SignUp = ({
           </Typography>
           <Formik
             initialValues={{
-              email: authData.email || '',
-              password: authData.password || '',
+              email: authData ? authData.email : '',
+              password: authData ? authData.password : '',
               firstName: '',
               familyName: '',
               city: '',
               country: ''
             }}
-            onSubmit={_signUp}
+            onSubmit={requestSignUp}
             render={({
               values: { email, password, firstName, familyName, city, country },
-              handleBlur,
               handleChange,
               handleSubmit,
               isSubmitting,
@@ -128,8 +89,8 @@ const SignUp = ({
                     <Space px={{ lg: 3 }}>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
-                          autoComplete='username'
-                          dataTestId='email-input-signup'
+                          autoComplete='signup-username'
+                          dataTestId='signup-email-input'
                           label='Email'
                           name='email'
                           placeholder='Email'
@@ -142,35 +103,35 @@ const SignUp = ({
                       </Box>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
-                          autoComplete='current-password'
-                          dataTestId='password-input-signup'
-                          type='password'
-                          placeholder='Password'
-                          name='password'
-                          value={password}
+                          autoComplete='signup-password'
+                          dataTestId='signup-password-input'
                           label='Password'
+                          name='password'
+                          placeholder='Password'
                           required
                           showValid='Password validated!'
+                          type='password'
+                          value={password}
                           validate={[required, passwordFormat]}
                         />
                       </Box>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
-                          autoComplete='first-name'
-                          dataTestId='firstname-input-signup'
-                          placeholder='First name'
-                          value={firstName}
+                          autoComplete='signup-first-name'
+                          dataTestId='signup-firstname-input'
                           label='First Name'
                           name='firstName'
+                          placeholder='First name'
                           required
                           showValid='First name validated!'
+                          value={firstName}
                           validate={[required]}
                         />
                       </Box>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
-                          autoComplete='last-name'
-                          dataTestId='lastname-input-signup'
+                          autoComplete='signup-last-name'
+                          dataTestId='signup-lastname-input'
                           label='Last Name'
                           name='familyName'
                           placeholder='Last name'
@@ -182,41 +143,42 @@ const SignUp = ({
                       </Box>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <Input
-                          dataTestId='city-input-signup'
-                          placeholder='City'
-                          value={city}
+                          autoComplete='signup-city'
+                          dataTestId='signup-city-input'
                           label='City'
                           name='city'
-                          onBlur={handleBlur}
+                          placeholder='City'
+                          value={city}
                           onChange={handleChange}
                         />
                       </Box>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <Dropdown
-                          id='country-option-signup'
-                          data-testid='country-option-signup'
+                          id='signup-country-dropdown'
+                          data-testid='signup-country-dropdown'
                           label='Country'
                           name='country'
                           placeholder='Select Your Country'
                           onChange={handleChange('country')}
                           value={country}
                           width={1}>
-                          {options.map(option => (
-                            <Dropdown.Option
-                              key={option.id}
-                              value={option.name}>
-                              {option.name}
+                          {options.map(({ id, name }) => (
+                            <Dropdown.Option key={id} value={name}>
+                              {name}
                             </Dropdown.Option>
                           ))}
                         </Dropdown>
                       </Box>
                     </Space>
                     <Space mt={1}>
-                    <Box width={1}>
-                      <Typography color='error' textAlign='center' variant='h6'>
-                        {status}
-                      </Typography>
-                    </Box>
+                      <Box width={1}>
+                        <Typography
+                          color='error'
+                          textAlign='center'
+                          variant='h6'>
+                          {status}
+                        </Typography>
+                      </Box>
                     </Space>
                     <Space mt={4}>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 3 / 7 }}>
@@ -239,7 +201,7 @@ const SignUp = ({
             <Touchable
               data-testid='anchor-to-signin'
               effect='opacity'
-              onClick={_handleStateChange('signIn')}>
+              onClick={() => onStateChange('signIn')}>
               <Typography variant='link'>
                 Already have an account? Sign in!
               </Typography>
@@ -253,14 +215,14 @@ const SignUp = ({
 
 SignUp.propTypes = {
   authData: PropTypes.object,
-  authState: PropTypes.string.isRequired,
+  authState: PropTypes.string,
   onAuthEvent: PropTypes.func,
-  onStateChange: PropTypes.func
+  onStateChange: PropTypes.func,
+  requestSignUp: PropTypes.func
 }
 
 SignUp.defaultProps = {
-  authState: 'signIn',
   authData: {}
 }
 
-export default SignUp
+export default withSignUp(SignUp)
