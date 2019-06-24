@@ -21,7 +21,7 @@ export default class WebCICDStack extends cdk.Stack {
     const stagingDist = this.createCFDistribution(stagingBucket, 'staging')
     const productionDist = this.createCFDistribution(productionBucket, 'production')
 
-    if (process.env.HOSTED_ZONE_ID && process.env.DOMAIN_NAME) {
+    if (process.env.HOSTED_ZONE_ID && process.env.APP_DOMAIN_NAME) {
       const stagingRecordName = `app.staging.${process.env.APP_DOMAIN_NAME}`
       const productionRecordName = `app.${process.env.APP_DOMAIN_NAME}`
 
