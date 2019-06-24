@@ -27,7 +27,7 @@ export default class WebBuildProject extends cdk.Construct {
         pre_build: {
           commands: [
             'npm ci',
-            `ENVIRONMENT=${env.toLowerCase()} node configureEnv.js`
+            `ENVIRONMENT=${env.toLowerCase()} node ./src/config/configureEnv.js`
           ]
         },
         build: {

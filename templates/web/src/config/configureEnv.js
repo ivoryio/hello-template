@@ -26,8 +26,8 @@ validateEnvironment()
     process.exit(1)
   })
 
-function validateEnvironment() {
-  const ENVIRONMENT = process.env.ENVIRONMENT
+function validateEnvironment () {
+  const {ENVIRONMENT} = process.env
   if (ENVIRONMENT !== 'staging' && ENVIRONMENT !== 'production') {
     return Promise.reject(
       `Expecting ENVIRONMENT to be staging or production, got: ${
@@ -39,7 +39,7 @@ function validateEnvironment() {
   return Promise.resolve()
 }
 
-function retrieveSSMParameters() {
+function retrieveSSMParameters () {
   const params = {
     Names: appParameters.map(p => p.ssm)
   }
@@ -58,7 +58,7 @@ function retrieveSSMParameters() {
     })
 }
 
-function configureReactParameters(ssmParameters) {
+function configureReactParameters (ssmParameters) {
   ssmParameters.forEach(ssmParameter => {
     const appParam = appParameters.find(p => p.ssm === ssmParameter.Name)
 
