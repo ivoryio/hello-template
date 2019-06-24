@@ -9,13 +9,13 @@ export default class WebBuildProject extends cdk.Construct {
   constructor(parent: cdk.Stack, id: string, props: WebBuildProjectProps) {
     super(parent, id)
 
-    const { repository, buildSpec, projectName, env } = props
-    const buildProjectName = `${projectName}-web-build-${env}`
+    const { repository, env } = props
+    const buildProjectName = `${this.projectName}-web-build-${env}`
 
     this.entity = new codebuild.Project(this, buildProjectName, {
       projectName: buildProjectName,
       source: new codebuild.CodeCommitSource({ repository }),
-      buildSpec: buildSpec ? buildSpec : this.makeDefaultBuildSpec(env),
+      buildSpec: this.makeDefaultBuildSpec(env),
       description: `Build web project for ${env}`
     })
   }
@@ -40,4 +40,6 @@ export default class WebBuildProject extends cdk.Construct {
       }
     }
   }
+
+  private readonly projectName = process.env.PROJECT_NAME!
 }

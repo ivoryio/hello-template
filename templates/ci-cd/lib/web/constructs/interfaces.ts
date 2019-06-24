@@ -6,13 +6,11 @@ import { ServiceProps } from '../../constructs/interfaces'
 
 export interface WebBuildProjectProps extends ServiceProps {
   env: 'staging' | 'production'
-  buildSpec?: string
   repository: codecommit.IRepository
 }
 
 export interface WebPipelineProps extends ServiceProps {
-  buckets: { [stage: string]: s3.IBucket }
-  stagingBuildProject: codebuild.IProject
-  productionBuildProject: codebuild.IProject
   repository: codecommit.IRepository
+  buckets: { staging: s3.IBucket; production: s3.IBucket }
+  buildProjects: { staging: codebuild.IProject; production: codebuild.IProject }
 }

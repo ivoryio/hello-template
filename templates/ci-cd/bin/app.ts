@@ -3,6 +3,7 @@ import 'source-map-support/register'
 import cdk = require('@aws-cdk/cdk')
 
 import services from './services'
+import CICDStack from '../lib/CICDStack'
 import WebCICDStack from '../lib/web/WebCICDStack'
 import ServiceCICDStack from '../lib/services/ServiceCICDStack'
 
@@ -14,14 +15,19 @@ if (!projectName) {
   process.exit(1)
 }
 
-createWebCICD()
-createServicesCICD()
+createCICDStack()
+createWebCICDStack()
+createServicesCICDStack()
 
-function createWebCICD() {
-  new WebCICDStack(app, `${projectName}-web-ci-cd`, { projectName })
+function createCICDStack() {
+  new CICDStack(app, `${projectName}-ci-cd`)
 }
 
-function createServicesCICD() {
+function createWebCICDStack() {
+  new WebCICDStack(app, `${projectName}-web-ci-cd`)
+}
+
+function createServicesCICDStack() {
   services.forEach(service => {
     new ServiceCICDStack(app, `${projectName}-${service.name}-ci-cd`, {
       projectName,

@@ -13,15 +13,9 @@ export default class WebPipeline extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: WebPipelineProps) {
     super(parent, id)
 
-    const {
-      repository,
-      stagingBuildProject,
-      productionBuildProject,
-      buckets,
-      projectName
-    } = props
+    const { repository, buildProjects, buckets } = props
 
-    const pipelineName = `${projectName}-web-pipeline`
+    const pipelineName = `${this.projectName}-web-pipeline`
     const pipeline = new codepipeline.Pipeline(this, pipelineName, {
       pipelineName
     })
@@ -30,13 +24,13 @@ export default class WebPipeline extends cdk.Construct {
 
     this.setUpStagingStage(
       buckets.staging,
-      stagingBuildProject,
+      buildProjects.staging,
       pipeline,
       sourceAction
     )
     this.setUpProductionStage(
       buckets.production,
-      productionBuildProject,
+      buildProjects.production,
       pipeline,
       sourceAction
     )
@@ -124,4 +118,6 @@ export default class WebPipeline extends cdk.Construct {
       ]
     })
   }
+
+  private readonly projectName = process.env.PROJECT_NAME!
 }
