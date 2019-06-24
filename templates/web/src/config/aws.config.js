@@ -14,5 +14,8 @@ export default Amplify.configure({
     process.env.REACT_APP_AWS_APPSYNC_AUTHENTICATION_TYPE,
   API: {
     graphql_headers: async () => ({})
+  },
+  Analytics: {
+    disabled: true
   }
 })

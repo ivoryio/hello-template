@@ -15,8 +15,8 @@ router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: true }))
 router.use(awsServerlessExpressMiddleware.eventContext())
 
-router.get('/', async (req, res) => {
-  const message = getServiceMessage(retrieveMessage)()
+router.get('/status', async (req, res) => {
+  const message = await getServiceMessage(retrieveMessage)()
   res.status(200).json(message)
 })
 

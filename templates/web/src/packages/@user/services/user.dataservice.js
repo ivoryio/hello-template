@@ -1,4 +1,4 @@
-import { Auth } from 'aws-amplify'
+import Auth from '@aws-amplify/auth'
 
 async function getCurrentUser () {
   const response = await Auth.currentAuthenticatedUser()
