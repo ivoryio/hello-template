@@ -27,7 +27,7 @@ validateEnvironment()
   })
 
 function validateEnvironment () {
-  const {ENVIRONMENT} = process.env
+  const { ENVIRONMENT } = process.env
   if (ENVIRONMENT !== 'staging' && ENVIRONMENT !== 'production') {
     return Promise.reject(
       `Expecting ENVIRONMENT to be staging or production, got: ${

@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Auth } from 'aws-amplify'
 
 import { Formik, Form } from 'formik'
 
@@ -16,43 +15,56 @@ import {
 } from '@kogaio'
 
 import icons from '@user/assets/icons'
-import { ValidatedInput } from '../components'
+import api from '@user/services/user.dataservice'
 import { getQueryParam } from '@shared-utils/funcs'
 import { required, emailFormat } from '../services/validators'
 
+import { ValidatedInput } from '../components'
+
 const SignIn = ({
+  authData,
   authState,
   navigate,
   onAuthEvent,
   onStateChange,
   ...props
 }) => {
+  if (!['signIn', 'signedOut', 'signedUp'].includes(authState)) return null
+
   const _handleStateChange = (newState, params = null) => () =>
     onStateChange(newState, params)
 
-  const _signIn = async ({ email, password }, actions) => {
+  const _requestSignIn = async ({ email, password }, actions) => {
     const { setStatus, setSubmitting } = actions
     setStatus(null)
-
     try {
-      const redirectPath = getQueryParam('redirectTo') || '/'
-      await Auth.signIn(email, password)
-      navigate(redirectPath, { replace: true })
+      await api.signIn(email, password)
+      redirectToStoredPath()
     } catch (err) {
-      if (typeof err === 'object') {
-        const { message, code } = err
-        if (['NotFoundException', 'NotAuthorizedException'].includes(code)) {
-          return setStatus('* Invalid email or password.')
-        }
-        return setStatus(`* ${message}`)
-      }
-      setStatus(`* Error caught: ${err}`)
+      handleAuthError(err)
     } finally {
       setSubmitting(false)
     }
+
+    function redirectToStoredPath () {
+      const redirectPath = getQueryParam('redirectTo') || '/'
+      return navigate(redirectPath, { replace: true })
+    }
+    function handleAuthError (err) {
+      if (typeof err === 'object') {
+        const { message, code } = err
+        if (code === 'UserNotFoundException')
+          return _handleStateChange('signUp', {
+            email,
+            password
+          })()
+
+        return setStatus(`* ${message}`)
+      }
+      setStatus(`* Error caught: ${err}`)
+    }
   }
 
-  if (!['signIn', 'signedOut', 'signedUp'].includes(authState)) return null
   return (
     <Flex
       alignItems='center'
@@ -79,8 +91,8 @@ const SignIn = ({
           </Space>
           <Box width={{ xs: 1, sm: 3 / 4, lg: 2 / 3 }}>
             <Formik
-              initialValues={{ email: '', password: '' }}
-              onSubmit={_signIn}
+              initialValues={{ email: authData.email || '', password: '' }}
+              onSubmit={_requestSignIn}
               render={({
                 values: { email, password },
                 status,
@@ -145,6 +157,7 @@ const SignIn = ({
 }
 
 SignIn.propTypes = {
+  authData: PropTypes.object,
   authState: PropTypes.string.isRequired,
   navigate: PropTypes.func,
   onAuthEvent: PropTypes.func,
@@ -152,7 +165,8 @@ SignIn.propTypes = {
 }
 
 SignIn.defaultProps = {
-  authState: 'signIn'
+  authState: 'signIn',
+  authData: {}
 }
 
 export default SignIn

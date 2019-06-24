@@ -4,7 +4,7 @@ import { Router } from '@reach/router'
 import { Header } from 'app/components'
 import { Flex } from '@kogaio/Responsive'
 import AuthContext from '../AuthContext'
-import { Landing, Auth, NotFound } from 'app/screens'
+import { Landing, Auth as AuthRoute, NotFound } from 'app/screens'
 import { ProtectedRoute, PublicRoute } from './components'
 
 const AppRouter = () => {
@@ -13,15 +13,15 @@ const AppRouter = () => {
     <Flex flexDirection='column' width={1}>
       <Header user={currentUser} />
       <Router>
-        <ProtectedRoute component={Test} path='/test' />
         <ProtectedRoute component={Landing} path='/' />
-        <PublicRoute component={Auth} path='/auth' />
-        <PublicRoute component={NotFound} default />
+        <PublicRoute component={Contact} path='contact' />
+        <AuthRoute path='auth' />
+        <NotFound default />
       </Router>
     </Flex>
   )
 }
 
-const Test = () => <div>Test</div>
+const Contact = () => <div>Contact</div>
 
 export default AppRouter

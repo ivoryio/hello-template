@@ -1,13 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Auth } from 'aws-amplify'
-
 import { Button, Flex, Modal, Space, Typography } from '@ivoryio/kogaio'
+
+import api from '@user/services/user.dataservice'
 
 const ConfirmModal = ({ hideModal, visible }) => {
   async function _signOut () {
     try {
-      await Auth.signOut()
+      await api.signOut()
       hideModal()
     } catch (err) {
       return console.error('* Error caught on sign out', err)

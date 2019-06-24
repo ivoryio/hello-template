@@ -1,21 +1,23 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
 import styled from 'styled-components'
 import { Flex } from '@kogaio/Responsive'
-import Typography from '@kogaio/Typography'
 
 import { Hello } from '@hello'
 
-const Landing = () => (
+const Landing = ({
+  currentUser: {
+    attributes: { name: firstName }
+  }
+}) => (
   <Flex
     alignItems='center'
     flexDirection='column'
     justifyContent='center'
     width={1}>
     <Center>
-      <Typography variant='h3'>
-        Welcome to landing.<Typography variant='h5'>Fun fact:</Typography>
-      </Typography>
-      <Hello />
+      <Hello name={firstName} />
     </Center>
   </Flex>
 )
@@ -31,6 +33,8 @@ const Center = styled(Flex)`
   transform: translate(-50%, -50%);
 `
 
-Landing.propTypes = {}
+Landing.propTypes = {
+  currentUser: PropTypes.object.isRequired
+}
 
 export default Landing

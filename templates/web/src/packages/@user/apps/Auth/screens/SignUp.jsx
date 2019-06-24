@@ -1,5 +1,4 @@
 import React from 'react'
-import { Auth } from 'aws-amplify'
 import PropTypes from 'prop-types'
 import { Formik, Form } from 'formik'
 import {
@@ -18,6 +17,7 @@ import {
 import icons from '@user/assets/icons'
 import { ValidatedInput } from '../components'
 import { required, emailFormat, passwordFormat } from '../services/validators'
+import api from '@user/services/user.dataservice'
 
 const options = [
   {
@@ -34,7 +34,15 @@ const options = [
   }
 ]
 
-const SignUp = ({ authState, onAuthEvent, onStateChange, ...props }) => {
+const SignUp = ({
+  authData,
+  authState,
+  onAuthEvent,
+  onStateChange,
+  ...props
+}) => {
+  if (authState !== 'signUp') return null
+
   const _handleStateChange = (newState, params) => () => {
     onStateChange(newState, params)
   }
@@ -45,7 +53,7 @@ const SignUp = ({ authState, onAuthEvent, onStateChange, ...props }) => {
 
     const { email, password, firstName, familyName, city, country } = values
     try {
-      const newUser = await Auth.signUp({
+      const response = await api.signUp({
         username: email,
         password,
         attributes: {
@@ -55,9 +63,10 @@ const SignUp = ({ authState, onAuthEvent, onStateChange, ...props }) => {
           'custom:country': country
         }
       })
-      
-      if (newUser) {
-        _handleStateChange('signIn', { username: newUser.username })()
+
+      if (response) {
+        const { username } = response.user
+        _handleStateChange('signIn', { email: username })()
       } else {
         setStatus(
           '* Unexpected error caught. Please try again in a few moments.'
@@ -72,10 +81,6 @@ const SignUp = ({ authState, onAuthEvent, onStateChange, ...props }) => {
     } finally {
       setSubmitting(false)
     }
-  }
-
-  if (authState !== 'signUp') {
-    return null
   }
   return (
     <Flex
@@ -101,8 +106,8 @@ const SignUp = ({ authState, onAuthEvent, onStateChange, ...props }) => {
           </Typography>
           <Formik
             initialValues={{
-              email: '',
-              password: '',
+              email: authData.email || '',
+              password: authData.password || '',
               firstName: '',
               familyName: '',
               city: '',
@@ -206,11 +211,13 @@ const SignUp = ({ authState, onAuthEvent, onStateChange, ...props }) => {
                         </Dropdown>
                       </Box>
                     </Space>
+                    <Space mt={1}>
                     <Box width={1}>
                       <Typography color='error' textAlign='center' variant='h6'>
                         {status}
                       </Typography>
                     </Box>
+                    </Space>
                     <Space mt={4}>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 3 / 7 }}>
                         <Button
@@ -245,13 +252,15 @@ const SignUp = ({ authState, onAuthEvent, onStateChange, ...props }) => {
 }
 
 SignUp.propTypes = {
+  authData: PropTypes.object,
   authState: PropTypes.string.isRequired,
   onAuthEvent: PropTypes.func,
   onStateChange: PropTypes.func
 }
 
 SignUp.defaultProps = {
-  authState: 'signIn'
+  authState: 'signIn',
+  authData: {}
 }
 
 export default SignUp

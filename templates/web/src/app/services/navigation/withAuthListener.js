@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Hub, Auth } from 'aws-amplify'
+import Auth from '@aws-amplify/auth'
+import { Hub } from '@aws-amplify/core'
 import { navigate } from '@reach/router'
 
 export const withAuthListener = Component => props => {
@@ -35,9 +36,7 @@ function useAuth () {
       if (currUser) storeCurrentUser(currUser)
     } catch (err) {
       _clearStoredUser()
-      console.error(
-        `* [useAuth] Unexpected error caught while fetching user. Issue: ${err}.`
-      )
+      console.warn(`* [auth] Caught while fetching user. Issue: ${err}.`)
     }
   }, [])
 
