@@ -19,7 +19,10 @@ export default class WebCICDStack extends cdk.Stack {
     const { stagingBucket, productionBucket } = this.createPipeline(repository)
 
     const stagingDist = this.createCFDistribution(stagingBucket, 'staging')
-    const productionDist = this.createCFDistribution(productionBucket, 'production')
+    const productionDist = this.createCFDistribution(
+      productionBucket,
+      'production'
+    )
 
     if (process.env.HOSTED_ZONE_ID && process.env.APP_DOMAIN_NAME) {
       const stagingRecordName = `app.staging`
@@ -82,7 +85,10 @@ export default class WebCICDStack extends cdk.Stack {
     return buildProject
   }
 
-  private createCFDistribution(s3BucketSource: s3.IBucket, env: 'staging' | 'production') {
+  private createCFDistribution(
+    s3BucketSource: s3.IBucket,
+    env: 'staging' | 'production'
+  ) {
     const id = `${this.projectName}-web-cf-${env}`
     const props = {
       originConfigs: [
@@ -106,8 +112,13 @@ export default class WebCICDStack extends cdk.Stack {
     recordName: string,
     distibution: cf.CloudFrontWebDistribution
   ) {
-    const zoneID = process.env.HOSTED_ZONE_ID!
-    const zone = HostedZone.fromHostedZoneId(this, 'as', zoneID)
+    const hostedZoneId = process.env.HOSTED_ZONE_ID!
+    const id = `${this.projectName}-zone`
+    const props = {
+      hostedZoneId,
+      zoneName: 'ivory.io'
+    }
+    const zone = HostedZone.fromHostedZoneAttributes(this, id, props)
     const target = route53.AddressRecordTarget.fromAlias(
       new route53Targets.CloudFrontTarget(distibution)
     )
