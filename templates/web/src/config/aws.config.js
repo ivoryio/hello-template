@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint camelcase: 0 */
 import Amplify from 'aws-amplify'
 
 export default Amplify.configure({

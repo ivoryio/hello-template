@@ -12,7 +12,7 @@ const ValidatedInput = ({
   label,
   placeholder,
   required,
-  showValid,
+  validMessage,
   validate: validations,
   value
 }) => {
@@ -22,9 +22,9 @@ const ValidatedInput = ({
       : ''
 
   const showValidFeedback = (touched, errors) => {
-    if (!showValid) return null
+    if (!validMessage) return null
 
-    if (touched[name] && !errors[name]) return capitalizeFirstChar(showValid)
+    if (touched[name] && !errors[name]) return capitalizeFirstChar(validMessage)
   }
 
   return (
@@ -57,7 +57,7 @@ ValidatedInput.propTypes = {
   label: PropTypes.string,
   placeholder: PropTypes.string,
   required: PropTypes.bool,
-  showValid: PropTypes.string,
+  validMessage: PropTypes.string,
   validate: PropTypes.arrayOf(PropTypes.func),
   value: PropTypes.oneOfType([
     PropTypes.string,

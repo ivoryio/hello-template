@@ -1,8 +1,8 @@
+/* eslint react/prop-types: 0 */
 import React from 'react'
 import api from '@user/services/user.dataservice'
 import { getQueryParam } from '@shared-utils/funcs'
 
-// eslint-disable-next-line
 export const withSignIn = SignIn => ({ onStateChange, navigate, ...props }) => {
   const signIn = async ({ email, password }, actions) => {
     const { setStatus, setSubmitting } = actions
@@ -39,7 +39,6 @@ export const withSignIn = SignIn => ({ onStateChange, navigate, ...props }) => {
   )
 }
 
-// eslint-disable-next-line
 export const withSignUp = SignUp => ({ onStateChange, ...props }) => {
   const signUp = async (values, actions) => {
     const { setStatus, setSubmitting } = actions
@@ -52,24 +51,16 @@ export const withSignUp = SignUp => ({ onStateChange, ...props }) => {
         password,
         attributes: {
           name: firstName,
-          'family_name': familyName,
+          family_name: familyName /* eslint camelcase: 0 */,
           'custom:city': city,
           'custom:country': country
         }
       })
 
-      if (response) {
-        const { username } = response.user
-        onStateChange('signIn', { email: username })
-      } else
-        setStatus(
-          '* Unexpected error caught. Please try again in a few moments.'
-        )
+      if (response) onStateChange('signIn', { email: response.user.username })
+      else setStatus('* Unexpected error caught. Please try again.')
     } catch (err) {
-      if (typeof err === 'object') {
-        const { message } = err
-        return setStatus(`* ${message}`)
-      }
+      if (typeof err === 'object') return setStatus(`* ${err.message}`)
       setStatus(`* Error caught: ${err}`)
     } finally {
       setSubmitting(false)

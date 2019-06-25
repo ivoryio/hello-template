@@ -95,7 +95,7 @@ const SignUp = ({
                           name='email'
                           placeholder='Email'
                           required
-                          showValid='Email validated!'
+                          validMessage='Email validated!'
                           type='email'
                           validate={[required, emailFormat]}
                           value={email}
@@ -109,7 +109,7 @@ const SignUp = ({
                           name='password'
                           placeholder='Password'
                           required
-                          showValid='Password validated!'
+                          validMessage='Password validated!'
                           type='password'
                           value={password}
                           validate={[required, passwordFormat]}
@@ -123,7 +123,7 @@ const SignUp = ({
                           name='firstName'
                           placeholder='First name'
                           required
-                          showValid='First name validated!'
+                          validMessage='First name validated!'
                           value={firstName}
                           validate={[required]}
                         />
@@ -136,7 +136,7 @@ const SignUp = ({
                           name='familyName'
                           placeholder='Last name'
                           required
-                          showValid='Last name validated!'
+                          validMessage='Last name validated!'
                           validate={[required]}
                           value={familyName}
                         />

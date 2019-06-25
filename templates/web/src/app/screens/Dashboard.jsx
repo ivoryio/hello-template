@@ -6,7 +6,7 @@ import { Flex } from '@kogaio/Responsive'
 
 import { Hello } from '@hello'
 
-const Landing = ({
+const Dashboard = ({
   currentUser: {
     attributes: { name: firstName }
   }
@@ -33,8 +33,8 @@ const Center = styled(Flex)`
   transform: translate(-50%, -50%);
 `
 
-Landing.propTypes = {
+Dashboard.propTypes = {
   currentUser: PropTypes.object.isRequired
 }
 
-export default Landing
+export default Dashboard

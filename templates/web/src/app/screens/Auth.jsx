@@ -19,6 +19,7 @@ const AuthContainer = styled(Flex)`
   transform: translateY(-50%);
   width: 100%;
 
+  ${'' /* targets authenticator wrapper */}
   & > div:first-child {
     width: 100%;
   }
