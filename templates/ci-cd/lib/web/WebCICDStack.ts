@@ -1,9 +1,11 @@
 import cdk = require('@aws-cdk/cdk')
 import s3 = require('@aws-cdk/aws-s3')
+import ssm = require('@aws-cdk/aws-ssm')
 import cf = require('@aws-cdk/aws-cloudfront')
 import route53 = require('@aws-cdk/aws-route53')
 import { HostedZone } from '@aws-cdk/aws-route53'
 import { IRepository } from '@aws-cdk/aws-codecommit'
+
 import route53Targets = require('@aws-cdk/aws-route53-targets')
 
 import WebPipeline from './constructs/WebPipeline'
@@ -19,7 +21,14 @@ export default class WebCICDStack extends cdk.Stack {
     const { stagingBucket, productionBucket } = this.createPipeline(repository)
 
     const stagingDist = this.createCFDistribution(stagingBucket, 'staging')
+    new ssm.StringParameter(this, `staging-cf-dns`, {
+      stringValue: stagingDist.domainName
+    })
+
     const prodDist = this.createCFDistribution(productionBucket, 'production')
+    new ssm.StringParameter(this, `production-cf-dns`, {
+      stringValue: stagingDist.domainName
+    })
 
     if (
       process.env.HOSTED_ZONE_ID &&
@@ -88,14 +97,15 @@ export default class WebCICDStack extends cdk.Stack {
     env: 'staging' | 'production'
   ) {
     const id = `${this.projectName}-web-cf-${env}`
+    const aliasNames =
+      env === 'staging'
+        ? [`staging.${process.env.APP_DOMAIN_NAME}`]
+        : [`app.${process.env.APP_DOMAIN_NAME}`]
     const props: cf.CloudFrontWebDistributionProps = {
       aliasConfiguration: process.env.CERTIFICATE_ARN
         ? {
             acmCertRef: process.env.CERTIFICATE_ARN!,
-            names: [
-              `app.${process.env.APP_DOMAIN_NAME}`,
-              `staging.${process.env.APP_DOMAIN_NAME}`
-            ]
+            names: aliasNames
           }
         : undefined,
       errorConfigurations: [
