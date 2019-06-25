@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { MenuList, Space, Touchable, Typography } from '@kogaio'
 
-import { MenuList, Touchable, Typography } from '@kogaio'
 import { ConfirmModal } from './components'
 
 const menuItems = [
@@ -23,12 +23,11 @@ export const UserMenu = ({ user }) => {
 
   const _selectMenuItem = item => {
     switch (item) {
-      case 'My Profile':
-        return console.warn('* My Account fired. Feature still in progress.')
       case 'Sign Out':
         toggleModal()
         break
       default:
+        console.warn('* Not implemented.')
         break
     }
   }
@@ -44,18 +43,18 @@ export const UserMenu = ({ user }) => {
         return initials
       })()
       return (
-        <Touchable
-          effect='opacity'
-          bg='dark-gunmetal'
-          borderRadius='round'
-          data-testid='user-menu-toggler'
-          p={3}
-          my={3}
-          {...props}>
-          <Typography color='white' fontSize={3} variant='h5'>
-            {initials}
-          </Typography>
-        </Touchable>
+        <Space my={3} p={3}>
+          <Touchable
+            effect='opacity'
+            bg='dark-gunmetal'
+            borderRadius='round'
+            data-testid='user-menu-toggler'
+            {...props}>
+            <Typography color='white' fontSize={3} variant='h5'>
+              {initials}
+            </Typography>
+          </Touchable>
+        </Space>
       )
     },
     [user.attributes]

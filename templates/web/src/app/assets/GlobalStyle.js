@@ -1,12 +1,11 @@
-import { createGlobalStyle } from "styled-components"
+import { createGlobalStyle } from 'styled-components'
+import { themeGet } from '@kogaio'
 
 export const GlobalStyle = createGlobalStyle`
   body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    margin: ${themeGet('space.0')}px;
+    padding: ${themeGet('space.0')}px;
+    font-family: ${themeGet('fonts.primary')};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     width: 100%;

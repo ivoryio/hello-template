@@ -14,7 +14,7 @@ const Header = ({ user }) =>
             <Typography
               color='white'
               data-testid='dashboard-title'
-              fontSize={3}>
+              variant='h3'>
               Dashboard
             </Typography>
           </Touchable>
