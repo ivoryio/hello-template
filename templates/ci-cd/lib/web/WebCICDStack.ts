@@ -11,8 +11,8 @@ import WebRepository from './constructs/WebRepository'
 import WebBuildProject from './constructs/WebBuildProject'
 
 export default class WebCICDStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id)
+  constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
+    super(scope, id, props)
 
     const repository = this.createRepository()
 
