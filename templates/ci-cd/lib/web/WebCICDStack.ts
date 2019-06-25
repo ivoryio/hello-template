@@ -27,7 +27,7 @@ export default class WebCICDStack extends cdk.Stack {
 
     const prodDist = this.createCFDistribution(productionBucket, 'production')
     new ssm.StringParameter(this, `production-cf-dns`, {
-      stringValue: stagingDist.domainName
+      stringValue: prodDist.domainName
     })
 
     if (
