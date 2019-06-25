@@ -1,32 +1,42 @@
 import cdk = require('@aws-cdk/cdk')
 import s3 = require('@aws-cdk/aws-s3')
+import ssm = require('@aws-cdk/aws-ssm')
 import cf = require('@aws-cdk/aws-cloudfront')
 import route53 = require('@aws-cdk/aws-route53')
+import { HostedZone } from '@aws-cdk/aws-route53'
+import { IRepository } from '@aws-cdk/aws-codecommit'
+
 import route53Targets = require('@aws-cdk/aws-route53-targets')
 
 import WebPipeline from './constructs/WebPipeline'
 import WebRepository from './constructs/WebRepository'
 import WebBuildProject from './constructs/WebBuildProject'
-import { HostedZone } from '@aws-cdk/aws-route53'
-import { IRepository } from '@aws-cdk/aws-codecommit'
 
 export default class WebCICDStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id)
+  constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
+    super(scope, id, props)
 
     const repository = this.createRepository()
 
     const { stagingBucket, productionBucket } = this.createPipeline(repository)
 
     const stagingDist = this.createCFDistribution(stagingBucket, 'staging')
-    const productionDist = this.createCFDistribution(productionBucket, 'production')
+    new ssm.StringParameter(this, `staging-cf-dns`, {
+      stringValue: stagingDist.domainName
+    })
 
-    if (process.env.HOSTED_ZONE_ID && process.env.APP_DOMAIN_NAME) {
-      const stagingRecordName = `app.staging.${process.env.APP_DOMAIN_NAME}`
-      const productionRecordName = `app.${process.env.APP_DOMAIN_NAME}`
+    const prodDist = this.createCFDistribution(productionBucket, 'production')
+    new ssm.StringParameter(this, `production-cf-dns`, {
+      stringValue: prodDist.domainName
+    })
 
-      this.createAlias(stagingRecordName, stagingDist)
-      this.createAlias(productionRecordName, productionDist)
+    if (
+      process.env.HOSTED_ZONE_ID &&
+      process.env.APP_DOMAIN_NAME &&
+      process.env.CERTIFICATE_ARN
+    ) {
+      this.createAlias(stagingDist, 'staging')
+      this.createAlias(prodDist, 'production')
     }
 
     this.createStackOutputs(repository)
@@ -82,9 +92,34 @@ export default class WebCICDStack extends cdk.Stack {
     return buildProject
   }
 
-  private createCFDistribution(s3BucketSource: s3.IBucket, env: 'staging' | 'production') {
+  private createCFDistribution(
+    s3BucketSource: s3.IBucket,
+    env: 'staging' | 'production'
+  ) {
     const id = `${this.projectName}-web-cf-${env}`
-    const props = {
+    const aliasNames =
+      env === 'staging'
+        ? [`staging.${process.env.APP_DOMAIN_NAME}`]
+        : [`app.${process.env.APP_DOMAIN_NAME}`]
+    const props: cf.CloudFrontWebDistributionProps = {
+      aliasConfiguration: process.env.CERTIFICATE_ARN
+        ? {
+            acmCertRef: process.env.CERTIFICATE_ARN!,
+            names: aliasNames
+          }
+        : undefined,
+      errorConfigurations: [
+        {
+          errorCode: 403,
+          responseCode: 200,
+          responsePagePath: '/index.html'
+        },
+        {
+          errorCode: 404,
+          responseCode: 200,
+          responsePagePath: '/index.html'
+        }
+      ],
       originConfigs: [
         {
           s3OriginSource: {
@@ -103,15 +138,21 @@ export default class WebCICDStack extends cdk.Stack {
   }
 
   private createAlias(
-    recordName: string,
-    distibution: cf.CloudFrontWebDistribution
+    distibution: cf.CloudFrontWebDistribution,
+    env: 'staging' | 'production'
   ) {
-    const zoneID = process.env.HOSTED_ZONE_ID!
-    const zone = HostedZone.fromHostedZoneId(this, 'as', zoneID)
+    const hostedZoneId = process.env.HOSTED_ZONE_ID!
+    const id = `${this.projectName}-zone-${env}`
+    const props = {
+      hostedZoneId,
+      zoneName: process.env.APP_DOMAIN_NAME!
+    }
+    const zone = HostedZone.fromHostedZoneAttributes(this, id, props)
     const target = route53.AddressRecordTarget.fromAlias(
       new route53Targets.CloudFrontTarget(distibution)
     )
 
+    const recordName = env === 'staging' ? 'staging' : 'app'
     new route53.ARecord(this, `${recordName}`, { recordName, zone, target })
   }
 

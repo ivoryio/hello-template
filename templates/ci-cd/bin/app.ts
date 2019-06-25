@@ -15,16 +15,26 @@ if (!projectName) {
   process.exit(1)
 }
 
+const region = process.env.REGION!
+if (!region) {
+  console.error('Missing env REGION')
+  process.exit(1)
+}
+
 createCICDStack()
 createWebCICDStack()
 createServicesCICDStack()
 
 function createCICDStack() {
-  new CICDStack(app, `${projectName}-ci-cd`)
+  new CICDStack(app, `${projectName}-ci-cd`, {
+    env: { region }
+  })
 }
 
 function createWebCICDStack() {
-  new WebCICDStack(app, `${projectName}-web-ci-cd`)
+  new WebCICDStack(app, `${projectName}-web-ci-cd`, {
+    env: { region }
+  })
 }
 
 function createServicesCICDStack() {
@@ -32,7 +42,8 @@ function createServicesCICDStack() {
     new ServiceCICDStack(app, `${projectName}-${service.name}-ci-cd`, {
       projectName,
       serviceName: service.name,
-      makeBuildSpec: service.makeBuildSpec
+      makeBuildSpec: service.makeBuildSpec,
+      env: { region }
     })
   })
 }

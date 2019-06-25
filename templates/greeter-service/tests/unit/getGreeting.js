@@ -26,6 +26,16 @@ describe('Get greeting usecase', () => {
     assertId(greeting)
     greeting.should.have.property('text', 'Hello John Doe')
   })
+
+  it('should return a greeting with default greeting text if no greeting in the system', async () => {
+    const noGreetings = async () => {
+      return await Promise.resolve([])
+    }
+    const greeting = await getGreeting(noGreetings)('Bob')
+
+    greeting.should.have.property('id')
+    greeting.should.have.property('text', 'Hello Bob')
+  })
 })
 
 function assertId(greeting) {

@@ -2,8 +2,8 @@ import cdk = require('@aws-cdk/cdk')
 import codecommit = require('@aws-cdk/aws-codecommit')
 
 export default class CICDStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id)
+  constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
+    super(scope, id, props)
     
     const projectName = process.env.PROJECT_NAME!
 
