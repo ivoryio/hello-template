@@ -27,19 +27,13 @@ createServicesCICDStack()
 
 function createCICDStack() {
   new CICDStack(app, `${projectName}-ci-cd`, {
-    env: { region },
-    tags: {
-      isIvory: 'true'
-    }
+    env: { region }
   })
 }
 
 function createWebCICDStack() {
   new WebCICDStack(app, `${projectName}-web-ci-cd`, {
-    env: { region },
-    tags: {
-      isIvory: 'true'
-    }
+    env: { region }
   })
 }
 
@@ -49,10 +43,7 @@ function createServicesCICDStack() {
       projectName,
       serviceName: service.name,
       makeBuildSpec: service.makeBuildSpec,
-      env: { region },
-      tags: {
-        isIvory: 'true'
-      }
+      env: { region }
     })
   })
 }
