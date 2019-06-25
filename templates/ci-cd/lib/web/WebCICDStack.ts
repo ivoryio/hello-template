@@ -90,12 +90,19 @@ export default class WebCICDStack extends cdk.Stack {
     env: 'staging' | 'production'
   ) {
     const id = `${this.projectName}-web-cf-${env}`
-    const props : cf.CloudFrontWebDistributionProps = {
-      errorConfigurations: [{
-        errorCode: 403,
-        responseCode: 200,
-        responsePagePath: '/index.html'
-      }],
+    const props: cf.CloudFrontWebDistributionProps = {
+      errorConfigurations: [
+        {
+          errorCode: 403,
+          responseCode: 200,
+          responsePagePath: '/index.html'
+        },
+        {
+          errorCode: 404,
+          responseCode: 200,
+          responsePagePath: '/index.html'
+        }
+      ],
       originConfigs: [
         {
           s3OriginSource: {
@@ -122,7 +129,7 @@ export default class WebCICDStack extends cdk.Stack {
     const id = `${this.projectName}-zone-${env}`
     const props = {
       hostedZoneId,
-      zoneName: 'ivory.io'
+      zoneName: process.env.APP_DOMAIN_NAME!
     }
     const zone = HostedZone.fromHostedZoneAttributes(this, id, props)
     const target = route53.AddressRecordTarget.fromAlias(
