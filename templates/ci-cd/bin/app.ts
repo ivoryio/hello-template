@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import 'source-map-support/register'
 import cdk = require('@aws-cdk/cdk')
+import services = require('./services.json')
 
-import services from './services'
 import CICDStack from '../lib/CICDStack'
 import WebCICDStack from '../lib/web/WebCICDStack'
 import ServiceCICDStack from '../lib/services/ServiceCICDStack'
@@ -38,11 +38,10 @@ function createWebCICDStack() {
 }
 
 function createServicesCICDStack() {
-  services.forEach(service => {
+  services.forEach((service: { [key: string]: string }) => {
     new ServiceCICDStack(app, `${projectName}-${service.name}-ci-cd`, {
       projectName,
       serviceName: service.name,
-      makeBuildSpec: service.makeBuildSpec,
       env: { region }
     })
   })
