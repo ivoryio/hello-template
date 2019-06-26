@@ -77,14 +77,14 @@ const SignUp = ({
             }}
             onSubmit={requestSignUp}
             render={({
-              values: { email, password, firstName, familyName, city, country },
               handleChange,
               handleSubmit,
               isSubmitting,
-              status
+              status,
+              values: { email, password, firstName, familyName, city, country }
             }) => (
               <Space mt={4}>
-                <Form noValidate onSubmit={handleSubmit}>
+                <Form onSubmit={handleSubmit} noValidate>
                   <Flex flexWrap='wrap' justifyContent='center'>
                     <Space px={{ lg: 3 }}>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
@@ -186,6 +186,7 @@ const SignUp = ({
                           data-testid='signup-button'
                           disabled={isSubmitting}
                           isLoading={isSubmitting}
+                          onTouchEnd={handleSubmit}
                           title='Sign Up'
                           type='submit'
                           width={1}
