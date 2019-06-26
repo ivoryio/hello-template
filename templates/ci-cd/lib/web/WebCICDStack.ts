@@ -22,12 +22,16 @@ export default class WebCICDStack extends cdk.Stack {
 
     const stagingDist = this.createCFDistribution(stagingBucket, 'staging')
     new ssm.StringParameter(this, `staging-cf-dns`, {
-      stringValue: stagingDist.domainName
+      name: `${this.projectName}-cf-dns-staging`,
+      stringValue: stagingDist.domainName,
+      description: 'The CloudFront Web distribution DNS for staging'
     })
 
     const prodDist = this.createCFDistribution(productionBucket, 'production')
     new ssm.StringParameter(this, `production-cf-dns`, {
-      stringValue: prodDist.domainName
+      name: `${this.projectName}-cf-dns-production`,
+      stringValue: prodDist.domainName,
+      description: 'The CloudFront Web distribution DNS for production'
     })
 
     if (
