@@ -1,0 +1,26 @@
+{
+  "Resources": {
+    "lacicd9EF3FBB4": {
+      "Type": "AWS::CodeCommit::Repository",
+      "Properties": {
+        "RepositoryName": "la-ci-cd",
+        "RepositoryDescription": "Git repository for the la CI/CD",
+        "Triggers": []
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-ci-cd/la-ci-cd/Resource"
+      }
+    }
+  },
+  "Outputs": {
+    "repositorysshurl": {
+      "Description": "The SSH URL for cloning the la CI/CD repository",
+      "Value": {
+        "Fn::GetAtt": [
+          "lacicd9EF3FBB4",
+          "CloneUrlSsh"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1181 @@
+{
+  "Resources": {
+    "lagreeterrepositoryconstructlagreeterrepository38E84271": {
+      "Type": "AWS::CodeCommit::Repository",
+      "Properties": {
+        "RepositoryName": "la-greeter-repository",
+        "RepositoryDescription": "Git repository for the la-greeter.",
+        "Triggers": []
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-repository-construct/la-greeter-repository/Resource"
+      }
+    },
+    "lagreeterrepositoryconstructlagreeterrepositorylagreetercicdlagreeterpipelineconstructlagreeterpipeline9C6024FFEventRule461AEE97": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "EventPattern": {
+          "source": [
+            "aws.codecommit"
+          ],
+          "resources": [
+            {
+              "Fn::GetAtt": [
+                "lagreeterrepositoryconstructlagreeterrepository38E84271",
+                "Arn"
+              ]
+            }
+          ],
+          "detail-type": [
+            "CodeCommit Repository State Change"
+          ],
+          "detail": {
+            "event": [
+              "referenceCreated",
+              "referenceUpdated"
+            ],
+            "referenceName": [
+              "master"
+            ]
+          }
+        },
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":codepipeline:us-east-1:",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "lagreeterpipelineconstructlagreeterpipeline577AB1FD"
+                  }
+                ]
+              ]
+            },
+            "Id": "la-greeter-pipeline",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "lagreeterpipelineconstructlagreeterpipelineEventsRoleBDAFF696",
+                "Arn"
+              ]
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-repository-construct/la-greeter-repository/lagreetercicdlagreeterpipelineconstructlagreeterpipeline9C6024FFEventRule/Resource"
+      }
+    },
+    "lagreeterrepositoryconstructlagreeterrepositorytriggerlagreeterservicebuildD00E7338": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "EventPattern": {
+          "source": [
+            "aws.codecommit"
+          ],
+          "resources": [
+            {
+              "Fn::GetAtt": [
+                "lagreeterrepositoryconstructlagreeterrepository38E84271",
+                "Arn"
+              ]
+            }
+          ],
+          "detail-type": [
+            "CodeCommit Repository State Change"
+          ],
+          "detail": {
+            "event": [
+              "referenceCreated",
+              "referenceUpdated"
+            ]
+          }
+        },
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "lagreeterbuildconstructlagreeterbuild75D80123",
+                "Arn"
+              ]
+            },
+            "Id": "la-greeter-build",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "lagreeterbuildconstructlagreeterbuildEventsRole99245627",
+                "Arn"
+              ]
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-repository-construct/la-greeter-repository/trigger-la-greeter-service-build/Resource"
+      }
+    },
+    "lagreeterbuildconstructlagreeterlambdaartifactsbucket9AE617E6": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-build-construct/la-greeter-lambda-artifacts-bucket/Resource"
+      }
+    },
+    "lagreeterbuildconstructlagreeterbuildRole6787D5D0": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "codebuild.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-build-construct/la-greeter-build/Role/Resource"
+      }
+    },
+    "lagreeterbuildconstructlagreeterbuildRoleDefaultPolicy662612A4": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "codecommit:GitPull",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "lagreeterrepositoryconstructlagreeterrepository38E84271",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:us-east-1:",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":log-group:/aws/codebuild/",
+                      {
+                        "Ref": "lagreeterbuildconstructlagreeterbuild75D80123"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:us-east-1:",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":log-group:/aws/codebuild/",
+                      {
+                        "Ref": "lagreeterbuildconstructlagreeterbuild75D80123"
+                      },
+                      ":*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "s3:PutObject*",
+                "s3:Abort*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "lagreeterbuildconstructlagreeterlambdaartifactsbucket9AE617E6",
+                        "Arn"
+                      ]
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject*",
+                "s3:Abort*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketB5EBE17A",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketB5EBE17A",
+                          "Arn"
+                        ]
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketEncryptionKey3AF55B67",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "lagreeterbuildconstructlagreeterbuildRoleDefaultPolicy662612A4",
+        "Roles": [
+          {
+            "Ref": "lagreeterbuildconstructlagreeterbuildRole6787D5D0"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-build-construct/la-greeter-build/Role/DefaultPolicy/Resource"
+      }
+    },
+    "lagreeterbuildconstructlagreeterbuild75D80123": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Artifacts": {
+          "Type": "NO_ARTIFACTS"
+        },
+        "Environment": {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/nodejs:10.14.1",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "lagreeterbuildconstructlagreeterbuildRole6787D5D0",
+            "Arn"
+          ]
+        },
+        "Source": {
+          "BuildSpec": {
+            "Fn::Join": [
+              "",
+              [
+                "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p build\",\n        \"npm i\",\n        \"npm run test:unit\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"npm prune --production\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket ",
+                {
+                  "Ref": "lagreeterbuildconstructlagreeterlambdaartifactsbucket9AE617E6"
+                },
+                "\"\n      ]\n    }\n  },\n  \"artifacts\": {\n    \"secondary-artifacts\": {\n      \"template\": {\n        \"files\": \"infrastructure.packaged.yaml\",\n        \"base-directory\": \"build\"\n      },\n      \"staging_parameters\": {\n        \"files\": \"staging.json\",\n        \"base-directory\": \"parameters\"\n      },\n      \"production_parameters\": {\n        \"files\": \"production.json\",\n        \"base-directory\": \"parameters\"\n      }\n    }\n  }\n}"
+              ]
+            ]
+          },
+          "Location": {
+            "Fn::GetAtt": [
+              "lagreeterrepositoryconstructlagreeterrepository38E84271",
+              "CloneUrlHttp"
+            ]
+          },
+          "Type": "CODECOMMIT"
+        },
+        "Description": "Build project for the la-greeter",
+        "Name": "la-greeter-build"
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-build-construct/la-greeter-build/Resource"
+      }
+    },
+    "lagreeterbuildconstructlagreeterbuildEventsRole99245627": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-build-construct/la-greeter-build/EventsRole/Resource"
+      }
+    },
+    "lagreeterbuildconstructlagreeterbuildEventsRoleDefaultPolicy3223703B": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "codebuild:StartBuild",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "lagreeterbuildconstructlagreeterbuild75D80123",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "lagreeterbuildconstructlagreeterbuildEventsRoleDefaultPolicy3223703B",
+        "Roles": [
+          {
+            "Ref": "lagreeterbuildconstructlagreeterbuildEventsRole99245627"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-build-construct/la-greeter-build/EventsRole/DefaultPolicy/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketEncryptionKey3AF55B67": {
+      "Type": "AWS::KMS::Key",
+      "Properties": {
+        "KeyPolicy": {
+          "Statement": [
+            {
+              "Action": [
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":root"
+                    ]
+                  ]
+                }
+              },
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "lagreeterpipelineconstructlagreeterpipelineRole693025F3",
+                    "Arn"
+                  ]
+                }
+              },
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "lagreeterbuildconstructlagreeterbuildRole6787D5D0",
+                    "Arn"
+                  ]
+                }
+              },
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/ArtifactsBucketEncryptionKey/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketB5EBE17A": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "KMSMasterKeyID": {
+                  "Fn::GetAtt": [
+                    "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketEncryptionKey3AF55B67",
+                    "Arn"
+                  ]
+                },
+                "SSEAlgorithm": "aws:kms"
+              }
+            }
+          ]
+        }
+      },
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/ArtifactsBucket/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineRole693025F3": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "codepipeline.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/Role/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineRoleDefaultPolicy7EB37452": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject*",
+                "s3:Abort*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketB5EBE17A",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketB5EBE17A",
+                          "Arn"
+                        ]
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketEncryptionKey3AF55B67",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "codecommit:GetBranch",
+                "codecommit:GetCommit",
+                "codecommit:UploadArchive",
+                "codecommit:GetUploadArchiveStatus",
+                "codecommit:CancelUploadArchive"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "lagreeterrepositoryconstructlagreeterrepository38E84271",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "codebuild:BatchGetBuilds",
+                "codebuild:StartBuild",
+                "codebuild:StopBuild"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "lagreeterbuildconstructlagreeterbuild75D80123",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "lagreeterpipelineconstructlagreeterpipelineDeployStagingPrepareChangesRoleA02C6981",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::GetAtt": [
+                    "lagreeterpipelineconstructlagreeterpipelineDeployProductionPrepareChangesRole258DE499",
+                    "Arn"
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "cloudformation:CreateChangeSet",
+                "cloudformation:DeleteChangeSet",
+                "cloudformation:DescribeChangeSet",
+                "cloudformation:DescribeStacks"
+              ],
+              "Condition": {
+                "StringEqualsIfExists": {
+                  "cloudformation:ChangeSetName": "StagingChangeSet"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":cloudformation:us-east-1:",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":stack/la-greeter-staging/*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": "cloudformation:ExecuteChangeSet",
+              "Condition": {
+                "StringEquals": {
+                  "cloudformation:ChangeSetName": "StagingChangeSet"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":cloudformation:us-east-1:",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":stack/la-greeter-staging/*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": [
+                "cloudformation:CreateChangeSet",
+                "cloudformation:DeleteChangeSet",
+                "cloudformation:DescribeChangeSet",
+                "cloudformation:DescribeStacks"
+              ],
+              "Condition": {
+                "StringEqualsIfExists": {
+                  "cloudformation:ChangeSetName": "ProductionChangeSet"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":cloudformation:us-east-1:",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":stack/la-greeter-production/*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": "cloudformation:ExecuteChangeSet",
+              "Condition": {
+                "StringEquals": {
+                  "cloudformation:ChangeSetName": "ProductionChangeSet"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":cloudformation:us-east-1:",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":stack/la-greeter-production/*"
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "lagreeterpipelineconstructlagreeterpipelineRoleDefaultPolicy7EB37452",
+        "Roles": [
+          {
+            "Ref": "lagreeterpipelineconstructlagreeterpipelineRole693025F3"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/Role/DefaultPolicy/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipeline577AB1FD": {
+      "Type": "AWS::CodePipeline::Pipeline",
+      "Properties": {
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "lagreeterpipelineconstructlagreeterpipelineRole693025F3",
+            "Arn"
+          ]
+        },
+        "Stages": [
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Source",
+                  "Owner": "AWS",
+                  "Provider": "CodeCommit",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "RepositoryName": {
+                    "Fn::GetAtt": [
+                      "lagreeterrepositoryconstructlagreeterrepository38E84271",
+                      "Name"
+                    ]
+                  },
+                  "BranchName": "master",
+                  "PollForSourceChanges": false
+                },
+                "InputArtifacts": [],
+                "Name": "GetLatestChanges",
+                "OutputArtifacts": [
+                  {
+                    "Name": "Artifact_Source_GetLatestChanges"
+                  }
+                ],
+                "RunOrder": 1
+              }
+            ],
+            "Name": "Source"
+          },
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "ProjectName": {
+                    "Ref": "lagreeterbuildconstructlagreeterbuild75D80123"
+                  }
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "Artifact_Source_GetLatestChanges"
+                  }
+                ],
+                "Name": "BuildService",
+                "OutputArtifacts": [
+                  {
+                    "Name": "template"
+                  },
+                  {
+                    "Name": "staging_parameters"
+                  },
+                  {
+                    "Name": "production_parameters"
+                  }
+                ],
+                "RunOrder": 1
+              }
+            ],
+            "Name": "Build"
+          },
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "StackName": "la-greeter-staging",
+                  "ActionMode": "CHANGE_SET_REPLACE",
+                  "ChangeSetName": "StagingChangeSet",
+                  "TemplatePath": "template::infrastructure.packaged.yaml",
+                  "Capabilities": "CAPABILITY_NAMED_IAM",
+                  "RoleArn": {
+                    "Fn::GetAtt": [
+                      "lagreeterpipelineconstructlagreeterpipelineDeployStagingPrepareChangesRoleA02C6981",
+                      "Arn"
+                    ]
+                  },
+                  "TemplateConfiguration": "staging_parameters::staging.json"
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "template"
+                  },
+                  {
+                    "Name": "staging_parameters"
+                  }
+                ],
+                "Name": "PrepareChanges",
+                "OutputArtifacts": [],
+                "RunOrder": 1
+              },
+              {
+                "ActionTypeId": {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "StackName": "la-greeter-staging",
+                  "ActionMode": "CHANGE_SET_EXECUTE",
+                  "ChangeSetName": "StagingChangeSet"
+                },
+                "InputArtifacts": [],
+                "Name": "ExecuteChanges",
+                "OutputArtifacts": [],
+                "RunOrder": 2
+              }
+            ],
+            "Name": "DeployStaging"
+          },
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Provider": "Manual",
+                  "Version": "1"
+                },
+                "InputArtifacts": [],
+                "Name": "ApproveDeployment",
+                "OutputArtifacts": [],
+                "RunOrder": 1
+              },
+              {
+                "ActionTypeId": {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "StackName": "la-greeter-production",
+                  "ActionMode": "CHANGE_SET_REPLACE",
+                  "ChangeSetName": "ProductionChangeSet",
+                  "TemplatePath": "template::infrastructure.packaged.yaml",
+                  "Capabilities": "CAPABILITY_NAMED_IAM",
+                  "RoleArn": {
+                    "Fn::GetAtt": [
+                      "lagreeterpipelineconstructlagreeterpipelineDeployProductionPrepareChangesRole258DE499",
+                      "Arn"
+                    ]
+                  },
+                  "TemplateConfiguration": "production_parameters::production.json"
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "template"
+                  },
+                  {
+                    "Name": "production_parameters"
+                  }
+                ],
+                "Name": "PrepareChanges",
+                "OutputArtifacts": [],
+                "RunOrder": 2
+              },
+              {
+                "ActionTypeId": {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "StackName": "la-greeter-production",
+                  "ActionMode": "CHANGE_SET_EXECUTE",
+                  "ChangeSetName": "ProductionChangeSet"
+                },
+                "InputArtifacts": [],
+                "Name": "ExecuteChanges",
+                "OutputArtifacts": [],
+                "RunOrder": 3
+              }
+            ],
+            "Name": "DeployProduction"
+          }
+        ],
+        "ArtifactStore": {
+          "EncryptionKey": {
+            "Id": {
+              "Fn::GetAtt": [
+                "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketEncryptionKey3AF55B67",
+                "Arn"
+              ]
+            },
+            "Type": "KMS"
+          },
+          "Location": {
+            "Ref": "lagreeterpipelineconstructlagreeterpipelineArtifactsBucketB5EBE17A"
+          },
+          "Type": "S3"
+        },
+        "Name": "la-greeter-pipeline"
+      },
+      "DependsOn": [
+        "lagreeterpipelineconstructlagreeterpipelineRoleDefaultPolicy7EB37452",
+        "lagreeterpipelineconstructlagreeterpipelineRole693025F3"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineEventsRoleBDAFF696": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/EventsRole/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineEventsRoleDefaultPolicy361F3BAB": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "codepipeline:StartPipelineExecution",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":codepipeline:us-east-1:",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "lagreeterpipelineconstructlagreeterpipeline577AB1FD"
+                    }
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "lagreeterpipelineconstructlagreeterpipelineEventsRoleDefaultPolicy361F3BAB",
+        "Roles": [
+          {
+            "Ref": "lagreeterpipelineconstructlagreeterpipelineEventsRoleBDAFF696"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/EventsRole/DefaultPolicy/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineDeployStagingPrepareChangesRoleA02C6981": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "cloudformation.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/DeployStaging/PrepareChanges/Role/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineDeployStagingPrepareChangesRoleDefaultPolicy9B6F7045": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "*",
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "lagreeterpipelineconstructlagreeterpipelineDeployStagingPrepareChangesRoleDefaultPolicy9B6F7045",
+        "Roles": [
+          {
+            "Ref": "lagreeterpipelineconstructlagreeterpipelineDeployStagingPrepareChangesRoleA02C6981"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/DeployStaging/PrepareChanges/Role/DefaultPolicy/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineDeployProductionPrepareChangesRole258DE499": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "cloudformation.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/DeployProduction/PrepareChanges/Role/Resource"
+      }
+    },
+    "lagreeterpipelineconstructlagreeterpipelineDeployProductionPrepareChangesRoleDefaultPolicy1DE691A7": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "*",
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "lagreeterpipelineconstructlagreeterpipelineDeployProductionPrepareChangesRoleDefaultPolicy1DE691A7",
+        "Roles": [
+          {
+            "Ref": "lagreeterpipelineconstructlagreeterpipelineDeployProductionPrepareChangesRole258DE499"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "la-greeter-ci-cd/la-greeter-pipeline-construct/la-greeter-pipeline/DeployProduction/PrepareChanges/Role/DefaultPolicy/Resource"
+      }
+    }
+  },
+  "Outputs": {
+    "repositorysshurl": {
+      "Description": "The SSH URL for cloning the la greeter service",
+      "Value": {
+        "Fn::GetAtt": [
+          "lagreeterrepositoryconstructlagreeterrepository38E84271",
+          "CloneUrlSsh"
+        ]
+      }
+    }
+  }
+}

@@ -104,18 +104,13 @@ export default class WebCICDStack extends cdk.Stack {
       const buildProject = new WebBuildProject(stack, id, props).entity
 
       buildProject.role!.attachInlinePolicy(
-        createCFDistributionInvalidationPolicy(distributionID, env)
+        createCFDistributionInvalidationPolicy()
       )
-      buildProject.role!.attachInlinePolicy(
-        createCFDistributionRetrievalParametersPolicy()
-      )
+      buildProject.role!.attachInlinePolicy(createSSMRetrieveParametersPolicy())
 
       return buildProject
 
-      function createCFDistributionInvalidationPolicy(
-        distributionID: string,
-        env: 'staging' | 'production'
-      ) {
+      function createCFDistributionInvalidationPolicy() {
         const distributionARN = `arn:aws:cloudfront::${stack.requireAccountId()}:distribution/${distributionID}`
 
         return new iam.Policy(stack, `${env}-cf-invalidation-policy`, {
@@ -127,11 +122,12 @@ export default class WebCICDStack extends cdk.Stack {
         })
       }
 
-      function createCFDistributionRetrievalParametersPolicy() {
-        return new iam.Policy(stack, `${env}-cf-retrieval-parameters-policy`, {
+      function createSSMRetrieveParametersPolicy() {
+        return new iam.Policy(stack, `${env}-ssm-retrieve-parameters-policy`, {
           statements: [
             new iam.PolicyStatement()
-              .addAction('ssm:DescribeParameters')
+              .addActions('ssm:GetParameters', 'ssm:GetParameter')
+              .addAllResources()
           ]
         })
       }
