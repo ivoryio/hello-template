@@ -62,10 +62,10 @@ const SignIn = ({
               }}
               onSubmit={requestSignIn}
               render={({
-                values: { email, password },
-                status,
                 handleSubmit,
-                isSubmitting
+                isSubmitting,
+                status,
+                values: { email, password }
               }) => (
                 <Space mt={4}>
                   <Form onSubmit={handleSubmit} noValidate>
