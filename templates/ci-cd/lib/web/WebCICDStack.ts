@@ -23,23 +23,12 @@ export default class WebCICDStack extends cdk.Stack {
     const productionBucket = this.makeBucket('production')
 
     const stagingDist = this.createCFDistribution(stagingBucket, 'staging')
-    new ssm.StringParameter(this, `staging-cf-dns`, {
-      name: `${this.projectName}-cf-dns-staging`,
-      stringValue: stagingDist.domainName,
-      description: 'The CloudFront Web distribution DNS for staging'
-    })
     const prodDist = this.createCFDistribution(productionBucket, 'production')
-    new ssm.StringParameter(this, `production-cf-dns`, {
-      name: `${this.projectName}-cf-dns-production`,
-      stringValue: prodDist.domainName,
-      description: 'The CloudFront Web distribution DNS for production'
-    })
 
-    if (
-      process.env.HOSTED_ZONE_ID &&
-      process.env.APP_DOMAIN_NAME &&
-      process.env.CERTIFICATE_ARN
-    ) {
+    this.createDistributionParameters(stagingDist, 'staging')
+    this.createDistributionParameters(prodDist, 'production')
+
+    if (this.isDNSEnabled()) {
       this.createAlias(stagingDist, 'staging')
       this.createAlias(prodDist, 'production')
     }
@@ -52,9 +41,17 @@ export default class WebCICDStack extends cdk.Stack {
       staging: stagingDist,
       production: prodDist
     }
+
     this.createPipeline(buckets, distributions, repository)
 
     this.createStackOutputs(repository)
+  }
+  private isDNSEnabled() {
+    return (
+      process.env.HOSTED_ZONE_ID &&
+      process.env.APP_DOMAIN_NAME &&
+      process.env.CERTIFICATE_ARN
+    )
   }
 
   private createRepository() {
@@ -218,6 +215,27 @@ export default class WebCICDStack extends cdk.Stack {
       description: `The SSH URL for cloning the ${
         this.projectName
       } web repository`
+    })
+  }
+
+  private createDistributionParameters(
+    distribution: cf.CloudFrontWebDistribution,
+    env: 'staging' | 'production'
+  ) {
+    new ssm.StringParameter(
+      this,
+      `${this.projectName}-cf-distribution-id-${env}`,
+      {
+        name: `${this.projectName}-cf-distribution-id-${env}`,
+        stringValue: distribution.distributionId,
+        description: `The CloudFront Web distribution ID for ${env}`
+      }
+    )
+
+    new ssm.StringParameter(this, `${this.projectName}-cf-dns-${env}`, {
+      name: `${this.projectName}-cf-dns-${env}`,
+      stringValue: distribution.domainName,
+      description: `The CloudFront Web distribution DNS for ${env}`
     })
   }
 
