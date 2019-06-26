@@ -97,7 +97,7 @@ export default class WebCICDStack extends cdk.Stack {
       env: 'staging' | 'production'
     ) {
       const id = `${stack.projectName}-web-build-${env}`
-      const props = { repository, env }
+      const props = { repository, env, distributionID }
       const buildProject = new WebBuildProject(stack, id, props).entity
 
       buildProject.role!.attachInlinePolicy(
@@ -108,12 +108,10 @@ export default class WebCICDStack extends cdk.Stack {
       return buildProject
 
       function createCFDistributionInvalidationPolicy() {
-        const distributionARN = `arn:aws:cloudfront::${stack.requireAccountId()}:distribution/${distributionID}`
-
         return new iam.Policy(stack, `${env}-cf-invalidation-policy`, {
           statements: [
             new iam.PolicyStatement()
-              .addResources(distributionARN)
+              .addAllResources()
               .addAction('cloudfront:CreateInvalidation')
           ]
         })
@@ -222,16 +220,6 @@ export default class WebCICDStack extends cdk.Stack {
     distribution: cf.CloudFrontWebDistribution,
     env: 'staging' | 'production'
   ) {
-    new ssm.StringParameter(
-      this,
-      `${this.projectName}-cf-distribution-id-${env}`,
-      {
-        name: `${this.projectName}-cf-distribution-id-${env}`,
-        stringValue: distribution.distributionId,
-        description: `The CloudFront Web distribution ID for ${env}`
-      }
-    )
-
     new ssm.StringParameter(this, `${this.projectName}-cf-dns-${env}`, {
       name: `${this.projectName}-cf-dns-${env}`,
       stringValue: distribution.domainName,
