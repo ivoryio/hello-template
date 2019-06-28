@@ -93,6 +93,9 @@ export default class ServicePipeline extends cdk.Construct {
         changeSetName,
         adminPermissions: true,
         templatePath,
+        parameterOverrides: {
+          ProjectName: process.env.PROJECT_NAME!
+        },
         templateConfiguration,
         runOrder: 1
       }
@@ -135,6 +138,9 @@ export default class ServicePipeline extends cdk.Construct {
         changeSetName,
         adminPermissions: true,
         templatePath,
+        parameterOverrides: {
+          ProjectName: process.env.PROJECT_NAME!
+        },
         templateConfiguration,
         runOrder: 2
       }
