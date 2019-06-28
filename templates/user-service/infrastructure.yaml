@@ -3,6 +3,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: Resources needed by the user-service
 
 Parameters:
+  ProjectName:
+    Type: String
+
   Environment:
     Type: String
     AllowedValues: # Changing one of these values require change in multiple places!
@@ -145,31 +148,31 @@ Resources:
   UserPoolIdParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub 'user-service-pool-id-${Environment}'
+      Name: !Sub '${ProjectName}-user-service-pool-id-${Environment}'
       Type: String
       Value: !Ref UserPool
-      Description: !Sub 'The Cognito user pool id created by the user-service to be used in ${Environment}'
+      Description: !Sub 'The $ProjectName Cognito user pool id created by the user-service to be used in ${Environment}'
 
   UserPoolArnParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub 'user-service-pool-arn-${Environment}'
+      Name: !Sub '${ProjectName}-user-service-pool-arn-${Environment}'
       Type: String
       Value: !GetAtt UserPool.Arn
-      Description: !Sub 'The Cognito user pool ARN created by the user-service to be used in ${Environment}'
+      Description: !Sub 'The ${ProjectName} Cognito user pool ARN created by the user-service to be used in ${Environment}'
 
   UserPoolWebClientIdParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub 'user-service-web-client-id-${Environment}'
+      Name: !Sub '${ProjectName}-user-service-web-client-id-${Environment}'
       Type: String
       Value: !Ref UserPoolWebClient
-      Description: !Sub 'The Cognito user pool web client id created by the user-service to be used in ${Environment}'
+      Description: !Sub 'The ${ProjectName} Cognito user pool web client id created by the user-service to be used in ${Environment}'
 
   IdentityPoolIdParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub 'user-service-identity-pool-id-${Environment}'
+      Name: !Sub '${ProjectName}-user-service-identity-pool-id-${Environment}'
       Type: String
       Value: !Ref IdentityPool
-      Description: !Sub 'The Cognito identity pool id created by the user-service to be used in ${Environment}'
+      Description: !Sub 'The ${ProjectName} Cognito identity pool id created by the user-service to be used in ${Environment}'

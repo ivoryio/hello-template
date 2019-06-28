@@ -6,6 +6,7 @@ import { ServiceProps } from '../../constructs/interfaces'
 
 export interface WebBuildProjectProps extends ServiceProps {
   env: 'staging' | 'production'
+  distributionID: string
   repository: codecommit.IRepository
 }
 

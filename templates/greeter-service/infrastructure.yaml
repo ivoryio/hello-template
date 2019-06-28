@@ -3,6 +3,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: AWS resources for the Greeter microservice
 
 Parameters:
+  ProjectName:
+    Type: String
+    
   Environment:
     Type: String
     AllowedValues: # Changing one of these values require change in multiple places!
@@ -20,7 +23,7 @@ Resources:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: !Sub '{{resolve:ssm:user-service-pool-arn-${Environment}:1}}'
+            UserPoolArn: !Sub '{{resolve:ssm:${ProjectName}-user-service-pool-arn-${Environment}:1}}'
             IdentitySource: 'method.request.header.Authorization'
 
   GreeterRESTApiController:
@@ -97,15 +100,15 @@ Resources:
   RESTApiUrlParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub 'greeter-rest-api-url-${Environment}'
+      Name: !Sub '${ProjectName}-greeter-rest-api-url-${Environment}'
       Type: String
       Value: !Sub https://${GreeterRESTApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/
-      Description: !Sub 'The Greeter service REST API URL to be used in ${Environment}'
+      Description: !Sub 'The ${ProjectName} Greeter service REST API URL to be used in ${Environment}'
  
   GreeterResolverArnParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub 'greeter-graphql-resolver-${Environment}'
+      Name: !Sub '${ProjectName}-greeter-graphql-resolver-${Environment}'
       Type: String
       Value: !GetAtt GreeterResolver.Arn 
-      Description: !Sub 'The Greeter service resolver ARN to be used in ${Environment}'
+      Description: !Sub 'The ${ProjectName} Greeter service resolver ARN to be used in ${Environment}'

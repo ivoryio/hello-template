@@ -1,5 +1,6 @@
 import cdk = require('@aws-cdk/cdk')
 import s3 = require('@aws-cdk/aws-s3')
+import iam = require('@aws-cdk/aws-iam')
 import ssm = require('@aws-cdk/aws-ssm')
 import cf = require('@aws-cdk/aws-cloudfront')
 import route53 = require('@aws-cdk/aws-route53')
@@ -18,28 +19,39 @@ export default class WebCICDStack extends cdk.Stack {
 
     const repository = this.createRepository()
 
-    const { stagingBucket, productionBucket } = this.createPipeline(repository)
+    const stagingBucket = this.makeBucket('staging')
+    const productionBucket = this.makeBucket('production')
 
     const stagingDist = this.createCFDistribution(stagingBucket, 'staging')
-    new ssm.StringParameter(this, `staging-cf-dns`, {
-      stringValue: stagingDist.domainName
-    })
-
     const prodDist = this.createCFDistribution(productionBucket, 'production')
-    new ssm.StringParameter(this, `production-cf-dns`, {
-      stringValue: prodDist.domainName
-    })
 
-    if (
-      process.env.HOSTED_ZONE_ID &&
-      process.env.APP_DOMAIN_NAME &&
-      process.env.CERTIFICATE_ARN
-    ) {
+    this.createDistributionParameters(stagingDist, 'staging')
+    this.createDistributionParameters(prodDist, 'production')
+
+    if (this.isDNSEnabled()) {
       this.createAlias(stagingDist, 'staging')
       this.createAlias(prodDist, 'production')
     }
 
+    const buckets = {
+      staging: stagingBucket,
+      production: productionBucket
+    }
+    const distributions = {
+      staging: stagingDist,
+      production: prodDist
+    }
+
+    this.createPipeline(buckets, distributions, repository)
+
     this.createStackOutputs(repository)
+  }
+  private isDNSEnabled() {
+    return (
+      process.env.HOSTED_ZONE_ID &&
+      process.env.APP_DOMAIN_NAME &&
+      process.env.CERTIFICATE_ARN
+    )
   }
 
   private createRepository() {
@@ -47,23 +59,74 @@ export default class WebCICDStack extends cdk.Stack {
     return new WebRepository(this, id).entity
   }
 
-  private createPipeline(repository: IRepository) {
+  private createPipeline(
+    buckets: { staging: s3.IBucket; production: s3.IBucket },
+    distributions: {
+      staging: cf.CloudFrontWebDistribution
+      production: cf.CloudFrontWebDistribution
+    },
+    repository: IRepository
+  ) {
     const id = `${this.projectName}-web-pipeline`
-    const stagingBucket = this.makeBucket('staging')
-    const productionBucket = this.makeBucket('production')
-    new WebPipeline(this, id, {
+
+    const pipeline = new WebPipeline(this, id, {
       repository,
       buckets: {
-        staging: stagingBucket,
-        production: productionBucket
+        staging: buckets.staging,
+        production: buckets.production
       },
       buildProjects: {
-        staging: this.createBuildProject(repository, 'staging'),
-        production: this.createBuildProject(repository, 'production')
+        staging: createBuildProject(
+          this,
+          distributions.staging.distributionId,
+          'staging'
+        ),
+        production: createBuildProject(
+          this,
+          distributions.production.distributionId,
+          'production'
+        )
       }
     }).entity
 
-    return { stagingBucket, productionBucket }
+    return pipeline
+
+    function createBuildProject(
+      stack: WebCICDStack,
+      distributionID: string,
+      env: 'staging' | 'production'
+    ) {
+      const id = `${stack.projectName}-web-build-${env}`
+      const props = { repository, env, distributionID }
+      const buildProject = new WebBuildProject(stack, id, props).entity
+
+      buildProject.role!.attachInlinePolicy(
+        createCFDistributionInvalidationPolicy()
+      )
+      buildProject.role!.attachInlinePolicy(createSSMRetrieveParametersPolicy())
+
+      return buildProject
+
+      function createCFDistributionInvalidationPolicy() {
+        return new iam.Policy(stack, `${env}-cf-invalidation-policy`, {
+          statements: [
+            new iam.PolicyStatement()
+              .addAllResources()
+              .addAction('cloudfront:CreateInvalidation')
+          ]
+        })
+      }
+
+      function createSSMRetrieveParametersPolicy() {
+        return new iam.Policy(stack, `${env}-ssm-retrieve-parameters-policy`, {
+          statements: [
+            new iam.PolicyStatement()
+              .addActions('ssm:GetParameters', 'ssm:GetParameter')
+              .addAllResources()
+          ]
+        })
+      }
+    }
   }
 
   private makeBucket(env: 'staging' | 'production') {
@@ -78,18 +141,6 @@ export default class WebCICDStack extends cdk.Stack {
       websiteIndexDocument: 'index.html',
       websiteErrorDocument: 'index.html'
     })
-  }
-
-  private createBuildProject(repo: IRepository, env: 'staging' | 'production') {
-    const id = `${this.projectName}-web-build-${env}`
-    const props = { repository: repo, env }
-    const buildProject = new WebBuildProject(this, id, props).entity
-
-    buildProject.role!.attachManagedPolicy(
-      'arn:aws:iam::aws:policy/AmazonSSMFullAccess'
-    )
-
-    return buildProject
   }
 
   private createCFDistribution(
@@ -162,6 +213,17 @@ export default class WebCICDStack extends cdk.Stack {
       description: `The SSH URL for cloning the ${
         this.projectName
       } web repository`
+    })
+  }
+
+  private createDistributionParameters(
+    distribution: cf.CloudFrontWebDistribution,
+    env: 'staging' | 'production'
+  ) {
+    new ssm.StringParameter(this, `${this.projectName}-cf-dns-${env}`, {
+      name: `${this.projectName}-cf-dns-${env}`,
+      stringValue: distribution.domainName,
+      description: `The CloudFront Web distribution DNS for ${env}`
     })
   }
 

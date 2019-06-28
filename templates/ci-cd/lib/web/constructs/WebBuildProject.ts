@@ -9,18 +9,18 @@ export default class WebBuildProject extends cdk.Construct {
   constructor(parent: cdk.Stack, id: string, props: WebBuildProjectProps) {
     super(parent, id)
 
-    const { repository, env } = props
+    const { repository, env, distributionID } = props
     const buildProjectName = `${this.projectName}-web-build-${env}`
 
     this.entity = new codebuild.Project(this, buildProjectName, {
       projectName: buildProjectName,
       source: new codebuild.CodeCommitSource({ repository }),
-      buildSpec: this.makeDefaultBuildSpec(env),
+      buildSpec: this.makeDefaultBuildSpec(env, distributionID),
       description: `Build web project for ${env}`
     })
   }
 
-  private makeDefaultBuildSpec(env: string) {
+  private makeDefaultBuildSpec(env: string, distributionID: string) {
     return {
       version: '0.2',
       phases: {
@@ -32,6 +32,11 @@ export default class WebBuildProject extends cdk.Construct {
         },
         build: {
           commands: [`npm run build:${env.toLowerCase()}`]
+        },
+        post_build: {
+          commands: [
+            `aws cloudfront create-invalidation --distribution-id ${distributionID} --paths '/*'`
+          ]
         }
       },
       artifacts: {
