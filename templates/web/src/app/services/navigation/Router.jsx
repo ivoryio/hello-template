@@ -11,7 +11,7 @@ const AppRouter = () => {
   const { currentUser } = useContext(AuthContext)
   return (
     <Flex flexDirection='column' width={1}>
-      <Header user={currentUser} />
+      {currentUser ? <Header user={currentUser} /> : null}
       <Router>
         <ProtectedRoute component={Dashboard} path='/' />
         <PublicRoute component={Contact} path='contact' />
