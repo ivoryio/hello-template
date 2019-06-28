@@ -5,15 +5,15 @@ var ssm = new AWS.SSM({ apiVersion: '2014-11-06', region: 'us-east-1' })
 
 const appParameters = [
   {
-    ssm: `user-service-pool-id-${process.env.ENVIRONMENT}`,
+    ssm: `${process.env.PROJECT_NAME}-user-service-pool-id-${process.env.ENVIRONMENT}`,
     react: ['USER_POOL_ID_PLACEHOLDER']
   },
   {
-    ssm: `user-service-web-client-id-${process.env.ENVIRONMENT}`,
+    ssm: `${process.env.PROJECT_NAME}-user-service-web-client-id-${process.env.ENVIRONMENT}`,
     react: ['USER_POOL_WEB_CLIENT_ID_PLACEHOLDER']
   },
   {
-    ssm: `data-gateway-url-${process.env.ENVIRONMENT}`,
+    ssm: `${process.env.PROJECT_NAME}-data-gateway-url-${process.env.ENVIRONMENT}`,
     react: ['APPSYNC_GRAPHQL_ENDPOINT_PLACEHOLDER']
   }
 ]
