@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+  ProjectName:
+    Type: String
+    
   Environment:
     Type: String
     AllowedValues: # Changing one of these values require change in multiple places!
@@ -13,7 +16,7 @@ Resources:
   LoggingRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub 'data-gateway-logging-role-${Environment}'
+      RoleName: !Sub '${ProjectName}-data-gateway-logging-role-${Environment}'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -44,17 +47,17 @@ Resources:
               - Effect: Allow
                 Action: lambda:invokeFunction
                 Resource:
-                  - !Sub '{{resolve:ssm:greeter-graphql-resolver-${Environment}:1}}'
+                  - !Sub '{{resolve:ssm:${ProjectName}-greeter-graphql-resolver-${Environment}:1}}'
 
   GraphQLAPI:
     Type: AWS::AppSync::GraphQLApi
     Properties:
-      Name: !Sub 'data-gateway-graphqlapi-${Environment}'
+      Name: !Sub '${ProjectName}-data-gateway-graphqlapi-${Environment}'
       AuthenticationType: AMAZON_COGNITO_USER_POOLS
       UserPoolConfig:
         AwsRegion: !Sub ${AWS::Region}
         DefaultAction: 'ALLOW'
-        UserPoolId: !Sub '{{resolve:ssm:user-service-pool-id-${Environment}:1}}'
+        UserPoolId: !Sub '{{resolve:ssm:${ProjectName}-user-service-pool-id-${Environment}:1}}'
 
   GraphQLSchema:
     Type: AWS::AppSync::GraphQLSchema
@@ -75,10 +78,10 @@ Resources:
   GreeterDataSource:
     Type: AWS::AppSync::DataSource
     Properties:
-      Name: !Sub 'data_gateway_datasource_${Environment}'
+      Name: !Sub '${ProjectName}_data_gateway_datasource_${Environment}'
       ApiId: !GetAtt GraphQLAPI.ApiId
       LambdaConfig:
-        LambdaFunctionArn: !Sub '{{resolve:ssm:greeter-graphql-resolver-${Environment}:1}}'
+        LambdaFunctionArn: !Sub '{{resolve:ssm:${ProjectName}-greeter-graphql-resolver-${Environment}:1}}'
       ServiceRoleArn: !GetAtt InvokeLambdaRole.Arn
       Type: AWS_LAMBDA
 
@@ -119,8 +122,8 @@ Resources:
   GraphQLAPIUrlParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub 'data-gateway-url-${Environment}'
+      Name: !Sub '${ProjectName}-data-gateway-url-${Environment}'
       Type: String
       Value: !GetAtt GraphQLAPI.GraphQLUrl
       Description:
-        !Sub 'The GraphQLUrl for the data-gateway to be used in ${Environment}'
+        !Sub 'The ${ProjectName} GraphQLUrl for the data-gateway to be used in ${Environment}'
