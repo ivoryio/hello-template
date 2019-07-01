@@ -48,7 +48,6 @@ export const UserMenu = ({ user }) => {
             effect='opacity'
             bg='dark-gunmetal'
             borderRadius='round'
-            data-testid='user-menu-toggler'
             {...props}>
             <Typography color='white' fontSize={3} variant='h5'>
               {initials}

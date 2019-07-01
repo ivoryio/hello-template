@@ -17,7 +17,6 @@ const ConfirmModal = ({ hideModal, visible }) => {
   return (
     <Modal
       alignItems='center'
-      data-testid='signout-modal'
       justifyContent='center'
       hide={hideModal}
       onBackdropClick={hideModal}
