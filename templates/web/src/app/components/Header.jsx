@@ -10,7 +10,7 @@ const Header = ({ user }) => (
     <TopBar bg='gunmetal'>
       <Flex alignItems='center' justifyContent='space-between' width={1}>
         <Touchable effect='opacity' onClick={() => navigate('/')}>
-          <Typography color='white' data-testid='dashboard-title' variant='h3'>
+          <Typography color='white' variant='h3'>
             Dashboard
           </Typography>
         </Touchable>

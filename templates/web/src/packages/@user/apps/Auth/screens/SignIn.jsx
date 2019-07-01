@@ -29,7 +29,6 @@ const SignIn = ({
   ...props
 }) => {
   if (!['signIn', 'signedOut', 'signedUp'].includes(authState)) return null
-
   return (
     <Flex
       alignItems='center'
@@ -43,12 +42,11 @@ const SignIn = ({
           display='flex'
           flexDirection='column'
           width={{ xs: 1, sm: 2 / 3, md: 3 / 4, lg: 1 / 3 }}>
-          <Image size={[120]} src={icons.logo} />
+          <Image size={120} src={icons.logo} />
           <Space mt={1}>
             <Typography
-              data-testid='signin-title'
               color='dark-gunmetal'
-              fontWeight={2}
+              fontWeight='bold'
               textAlign='center'
               variant='h2'>
               Sign In Below!
@@ -71,7 +69,7 @@ const SignIn = ({
                   <Form onSubmit={handleSubmit} noValidate>
                     <ValidatedInput
                       autoComplete='signin-username'
-                      dataTestId='signin-username-input'
+                      id='username-input'
                       label='Email'
                       name='email'
                       placeholder='Email'
@@ -81,7 +79,7 @@ const SignIn = ({
                     />
                     <ValidatedInput
                       autoComplete='signin-current'
-                      dataTestId='signin-password-input'
+                      id='password-input'
                       label='Password'
                       name='password'
                       placeholder='Password'
@@ -94,7 +92,6 @@ const SignIn = ({
                     </Typography>
                     <Space mt={4}>
                       <Button
-                        data-testid='signin-button'
                         disabled={isSubmitting}
                         isLoading={isSubmitting}
                         title='Sign In'
@@ -109,7 +106,6 @@ const SignIn = ({
           </Box>
           <Space mt={3}>
             <Touchable
-              data-testid='anchor-to-signup'
               effect='opacity'
               onClick={() => onStateChange('signUp')}
               width={1}>

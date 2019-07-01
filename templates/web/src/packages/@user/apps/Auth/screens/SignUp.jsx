@@ -57,11 +57,10 @@ const SignUp = ({
           display='flex'
           flexDirection='column'
           width={{ xs: 1, sm: 3 / 4, md: 3 / 5, lg: 1 / 2 }}>
-          <Image mx='auto' dimensions={[120]} src={icons.logo} />
+          <Image mx='auto' size={120} src={icons.logo} />
           <Typography
-            data-testid='signup-title'
             color='dark-gunmetal'
-            fontWeight={2}
+            fontWeight='bold'
             textAlign='center'
             variant='h2'>
             Sign Up Below!
@@ -90,7 +89,7 @@ const SignUp = ({
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
                           autoComplete='signup-username'
-                          dataTestId='signup-email-input'
+                          id='email-input'
                           label='Email'
                           name='email'
                           placeholder='Email'
@@ -104,7 +103,7 @@ const SignUp = ({
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
                           autoComplete='signup-password'
-                          dataTestId='signup-password-input'
+                          id='password-input'
                           label='Password'
                           name='password'
                           placeholder='Password'
@@ -118,7 +117,7 @@ const SignUp = ({
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
                           autoComplete='signup-first-name'
-                          dataTestId='signup-firstname-input'
+                          id='firstname-input'
                           label='First Name'
                           name='firstName'
                           placeholder='First name'
@@ -131,7 +130,7 @@ const SignUp = ({
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <ValidatedInput
                           autoComplete='signup-last-name'
-                          dataTestId='signup-lastname-input'
+                          id='lastname-input'
                           label='Last Name'
                           name='familyName'
                           placeholder='Last name'
@@ -144,7 +143,7 @@ const SignUp = ({
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <Input
                           autoComplete='signup-city'
-                          dataTestId='signup-city-input'
+                          id='city-input'
                           label='City'
                           name='city'
                           placeholder='City'
@@ -155,7 +154,6 @@ const SignUp = ({
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 1 / 2 }}>
                         <Dropdown
                           id='signup-country-dropdown'
-                          data-testid='signup-country-dropdown'
                           label='Country'
                           name='country'
                           placeholder='Select Your Country'
@@ -183,7 +181,6 @@ const SignUp = ({
                     <Space mt={4}>
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 3 / 7 }}>
                         <Button
-                          data-testid='signup-button'
                           disabled={isSubmitting}
                           isLoading={isSubmitting}
                           onTouchEnd={handleSubmit}
@@ -199,10 +196,7 @@ const SignUp = ({
             )}
           />
           <Space mt={4}>
-            <Touchable
-              data-testid='anchor-to-signin'
-              effect='opacity'
-              onClick={() => onStateChange('signIn')}>
+            <Touchable effect='opacity' onClick={() => onStateChange('signIn')}>
               <Typography variant='link'>
                 Already have an account? Sign in!
               </Typography>

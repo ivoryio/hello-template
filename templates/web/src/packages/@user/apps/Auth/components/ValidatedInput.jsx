@@ -6,7 +6,7 @@ import { capitalizeFirstChar } from '../services'
 
 const ValidatedInput = ({
   autoComplete,
-  dataTestId,
+  id,
   name,
   type,
   label,
@@ -36,7 +36,7 @@ const ValidatedInput = ({
           {...field}
           {...props}
           autoComplete={autoComplete}
-          dataTestId={dataTestId}
+          id={id}
           error={touched[name] && errors[name]}
           label={label}
           name={name}
@@ -51,7 +51,7 @@ const ValidatedInput = ({
 }
 ValidatedInput.propTypes = {
   autoComplete: PropTypes.string,
-  dataTestId: PropTypes.string,
+  id: PropTypes.string,
   type: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
