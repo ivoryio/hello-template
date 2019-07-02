@@ -16,10 +16,6 @@ export const withSignIn = SignIn => ({ onStateChange, navigate, ...props }) => {
       setSubmitting(false)
     }
 
-    function redirectToStoredPath () {
-      const redirectPath = getQueryParam('redirectTo') || '/'
-      return navigate(redirectPath, { replace: true })
-    }
     function handleAuthError (err) {
       if (typeof err === 'object') {
         const { message, code } = err
@@ -34,6 +30,12 @@ export const withSignIn = SignIn => ({ onStateChange, navigate, ...props }) => {
       setStatus(`* Error caught: ${err}`)
     }
   }
+
+  function redirectToStoredPath () {
+    const redirectPath = getQueryParam('redirectTo') || '/'
+    return navigate(redirectPath, { replace: true })
+  }
+
   return (
     <SignIn onStateChange={onStateChange} requestSignIn={signIn} {...props} />
   )

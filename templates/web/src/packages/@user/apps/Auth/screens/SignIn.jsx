@@ -82,8 +82,10 @@ const SignIn = ({
                       id='password-input'
                       label='Password'
                       name='password'
+                      passwordView='toggle'
                       placeholder='Password'
                       type='password'
+                      
                       validate={[required]}
                       value={password}
                     />
@@ -93,7 +95,7 @@ const SignIn = ({
                     <Space mt={4}>
                       <Button
                         disabled={isSubmitting}
-                        isLoading={isSubmitting}
+                        loading={isSubmitting}
                         title='Sign In'
                         type='submit'
                         width={1}
