@@ -106,6 +106,7 @@ const SignUp = ({
                           id='password-input'
                           label='Password'
                           name='password'
+                          passwordView='toggle'
                           placeholder='Password'
                           required
                           validMessage='Password validated!'
@@ -182,7 +183,7 @@ const SignUp = ({
                       <Box width={{ xs: 1, sm: 4 / 5, md: 3 / 4, lg: 3 / 7 }}>
                         <Button
                           disabled={isSubmitting}
-                          isLoading={isSubmitting}
+                          loading={isSubmitting}
                           onTouchEnd={handleSubmit}
                           title='Sign Up'
                           type='submit'
