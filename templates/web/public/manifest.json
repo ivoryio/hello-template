@@ -1,6 +1,6 @@
 {
-  "short_name": "Ivory Template",
-  "name": "Ivory template",
+  "short_name": "PROJECT_NAME",
+  "name": "PROJECT_NAME",
   "icons": [
     {
       "src": "favicon.ico",
