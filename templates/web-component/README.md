@@ -5,5 +5,5 @@
 ## Usage
 
 ```
-import { PLACEHOLDER } = from '@PLACEHOLDER'
+import { MODULE } = from '@MODULE'
 ```

@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Button, Flex, Modal, Space, Typography } from '@ivoryio/kogaio'
+import { Button, Flex, Modal, Space, Typography } from '@kogaio'
 
 import api from '@user/services/user.dataservice'
 

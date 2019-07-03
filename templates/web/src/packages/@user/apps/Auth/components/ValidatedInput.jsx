@@ -1,5 +1,5 @@
 import React from 'react'
-import Input from '@ivoryio/kogaio/Input'
+import Input from '@kogaio/Input'
 import PropTypes from 'prop-types'
 import { Field } from 'formik'
 import { capitalizeFirstChar } from '../services'

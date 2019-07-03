@@ -1,1 +1,1 @@
-export { default as PLACEHOLDER } from './apps/PLACEHOLDER'
+export { default as MODULE_CAMELIZED } from './apps/MODULE_CAMELIZED'

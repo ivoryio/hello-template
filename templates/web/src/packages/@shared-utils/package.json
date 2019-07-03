@@ -1,18 +1,10 @@
 {
-  "name": "shared-utils",
+  "name": "PROJECT_NAME/shared-utils",
   "private": true,
   "author": "MihaiRo <mihai.rosca@thinslices.com>",
-  "homepage": "https://github.com/ivoryio/hello-templates#readme",
   "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ivoryio/hello-templates.git"
-  },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
-  },
-  "bugs": {
-    "url": "https://github.com/ivoryio/hello-templates/issues"
   },
   "peerDependencies": {
     "react": "^16.8.6",

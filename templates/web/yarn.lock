@@ -1047,12 +1047,13 @@
   dependencies:
     "@hapi/hoek" "8.x.x"
 
-"@ivoryio/kogaio@^0.6.6":
-  version "0.6.6"
-  resolved "https://registry.yarnpkg.com/@ivoryio/kogaio/-/kogaio-0.6.6.tgz#991680ca08dcff2a3450eadb9559cdea417fa6e0"
-  integrity sha512-tklTY18jcZ6JLyfmFn0JSlmkXVS7v121Qdja2IZNb61oFmOGtZ6/Bv49AWv29mxwS2A2ZecL5VHnRX4kCN9cLQ==
+"@ivoryio/kogaio@^0.6.7":
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/@ivoryio/kogaio/-/kogaio-0.6.7.tgz#9835195a12da76a6c93dceee0e889850b92c6d28"
+  integrity sha512-Vecrej3XQRcjxxqL5YndkqTv/CbJErOapHBg5v6g8k/y+sYuN28xrZXqAEDIvmcSLIxpKZ4NAcmyuhBGfPdvzw==
   dependencies:
     "@styled-system/prop-types" "^5.0.12"
+    styled-system "^5.0.12"
 
 "@jest/console@^24.7.1":
   version "24.7.1"
@@ -2273,10 +2274,10 @@ aws-sdk@2.474.0:
     uuid "3.3.2"
     xml2js "0.4.19"
 
-aws-sdk@^2.487.0:
-  version "2.487.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.487.0.tgz#ac22c071db17b236498e5765e32f74528135808a"
-  integrity sha512-bdImYaIzvRL4nn8DEvI39VCrQYPDeC/PTYg++EBobhaFh8ksbsTzBnIFAn5IxtlRsXWUzaZVyOgRTGqiiS6YHA==
+aws-sdk@^2.488.0:
+  version "2.488.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.488.0.tgz#1664e14743d93793d2ffc4b2e70b7ce19c008d84"
+  integrity sha512-9AP48tyF1E5+x1CKeiRlj0Sv1YF7KI0BdSW9JP8x3ClhPWNUHjDYNH2OwsALuG1BloeY2ZigYqfI2fB7g3rNHQ==
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
@@ -10205,6 +10206,8 @@ supports-color@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-6.1.0.tgz#0764abc69c63d5ac842dd4867e8d025e880df8f3"
   integrity sha512-qe1jfm1Mg7Nq/NSh6XE24gPXROEVsWHxC1LIx//XNlD9iw7YZQGjZNjYN7xGaEG6iKdA8EtNFW6R0gjnVXp+wQ==
+  dependencies:
+    has-flag "^3.0.0"
 
 svgo@^1.0.0, svgo@^1.2.2:
   version "1.2.2"
@@ -10703,6 +10706,9 @@ url@^0.11.0:
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/url/-/url-0.11.0.tgz#3838e97cfc60521eb73c525a8e55bfdd9e2e28f1"
   integrity sha1-ODjpfPxgUh63PFJajlW/3Z4uKPE=
+  dependencies:
+    punycode "1.3.2"
+    querystring "0.2.0"
 
 use@^3.1.0:
   version "3.1.1"
