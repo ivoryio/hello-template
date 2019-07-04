@@ -55,6 +55,8 @@ const Hello = ({
         <Flex justifyContent='center'>
           <Space mx={1}>
             <Input
+              alignItems='flex-start'
+              id='new-greeting-input'
               onChange={_handleValueChange}
               placeholder='New greeting'
               value={newGreeting}
@@ -85,6 +87,14 @@ Hello.propTypes = {
     id: PropTypes.string,
     __typename: PropTypes.string
   })
+}
+
+Hello.defaultProps = {
+  greeting: {
+    text: 'Hello',
+    id: 'dummy',
+    __typename: 'Greeting'
+  }
 }
 
 export default withGreeting(Hello)

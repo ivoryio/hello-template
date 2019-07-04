@@ -1,0 +1,13 @@
+{
+  "name": "PROJECT_NAME/shared-utils",
+  "private": true,
+  "author": "MihaiRo <mihai.rosca@thinslices.com>",
+  "license": "ISC",
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  }
+}

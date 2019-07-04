@@ -1,20 +1,15 @@
 import React from 'react'
-import Input from '@ivoryio/kogaio/Input'
+import Input from '@kogaio/Input'
 import PropTypes from 'prop-types'
 import { Field } from 'formik'
 import { capitalizeFirstChar } from '../services'
 
 const ValidatedInput = ({
-  autoComplete,
-  id,
   name,
-  type,
-  label,
-  placeholder,
-  required,
   validMessage,
   validate: validations,
-  value
+  value,
+  ...props
 }) => {
   const _validateField = () =>
     validations.length
@@ -31,24 +26,20 @@ const ValidatedInput = ({
     <Field
       name={name}
       validate={_validateField}
-      render={({ field, form: { touched, errors }, ...props }) => (
+      render={({ field, form: { touched, errors }, ...rest }) => (
         <Input
           {...field}
+          {...rest}
           {...props}
-          autoComplete={autoComplete}
-          id={id}
           error={touched[name] && errors[name]}
-          label={label}
           name={name}
-          placeholder={placeholder}
-          required={required}
-          type={type}
           valid={showValidFeedback(touched, errors)}
         />
       )}
     />
   )
 }
+
 ValidatedInput.propTypes = {
   autoComplete: PropTypes.string,
   id: PropTypes.string,
