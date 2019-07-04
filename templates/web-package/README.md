@@ -5,5 +5,5 @@
 ## Usage
 
 ```
-import { MODULE } = from '@MODULE'
+import { PACKAGE } = from '@PACKAGE'
 ```
