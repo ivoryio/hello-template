@@ -72,5 +72,5 @@ function configureReactParameters (ssmParameters) {
         })
     )
   })
-  return fs.writeFileSync('.env-cmdrc', JSON.stringify(envRC))
+  return fs.writeFileSync('.env-cmdrc', JSON.stringify(envRC, null, 2))
 }
