@@ -11,7 +11,8 @@ export interface WebBuildProjectProps extends ServiceProps {
 }
 
 export interface WebPipelineProps extends ServiceProps {
+  lambdaArtifactsBucket: s3.Bucket
   repository: codecommit.IRepository
-  buckets: { staging: s3.IBucket; production: s3.IBucket }
+  buckets: { staging: s3.Bucket; production: s3.Bucket }
   buildProjects: { staging: codebuild.IProject; production: codebuild.IProject }
 }

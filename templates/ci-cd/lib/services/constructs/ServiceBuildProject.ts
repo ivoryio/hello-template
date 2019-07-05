@@ -11,10 +11,7 @@ export default class ServiceBuildProject extends cdk.Construct {
     constructor(parent: cdk.Construct, id: string, props: ServiceBuildProjectProps) {
         super(parent, id)
 
-        const { serviceName, repository, makeBuildSpec: buildSpec } = props
-
-        const bucketName = `${serviceName}-lambda-artifacts-bucket`
-        const lambdaArtifactsBucket = new s3.Bucket(this, bucketName, {})
+        const { serviceName, repository, lambdaArtifactsBucket } = props
 
         const projectName = `${serviceName}-build`
         const buildProject = new codebuild.Project(this, projectName, {
@@ -25,7 +22,7 @@ export default class ServiceBuildProject extends cdk.Construct {
                 computeType: ComputeType.Small
             },
             source: new codebuild.CodeCommitSource({ repository }),
-            buildSpec: buildSpec ? buildSpec(lambdaArtifactsBucket) : this.makeDefaultBuildSpec(lambdaArtifactsBucket)
+            buildSpec: this.makeDefaultBuildSpec(lambdaArtifactsBucket)
         })
 
         lambdaArtifactsBucket.grantPut(buildProject)

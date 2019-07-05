@@ -9,13 +9,16 @@ import { IRepository } from '@aws-cdk/aws-codecommit'
 
 import route53Targets = require('@aws-cdk/aws-route53-targets')
 
+import { WebCICDStackProps } from './interfaces'
 import WebPipeline from './constructs/WebPipeline'
 import WebRepository from './constructs/WebRepository'
 import WebBuildProject from './constructs/WebBuildProject'
 
 export default class WebCICDStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, props: WebCICDStackProps) {
     super(scope, id, props)
+
+    const { lambdaArtifactsBucket } = props
 
     const repository = this.createRepository()
 
@@ -42,7 +45,7 @@ export default class WebCICDStack extends cdk.Stack {
       production: prodDist
     }
 
-    this.createPipeline(buckets, distributions, repository)
+    this.createPipeline(buckets, distributions,lambdaArtifactsBucket ,repository)
 
     this.createStackOutputs(repository)
   }
@@ -60,17 +63,19 @@ export default class WebCICDStack extends cdk.Stack {
   }
 
   private createPipeline(
-    buckets: { staging: s3.IBucket; production: s3.IBucket },
+    buckets: { staging: s3.Bucket; production: s3.Bucket },
     distributions: {
       staging: cf.CloudFrontWebDistribution
       production: cf.CloudFrontWebDistribution
     },
+    lambdaArtifactsBucket: s3.Bucket,
     repository: IRepository
   ) {
     const id = `${this.projectName}-web-pipeline`
 
     const pipeline = new WebPipeline(this, id, {
       repository,
+      lambdaArtifactsBucket,
       buckets: {
         staging: buckets.staging,
         production: buckets.production
@@ -144,7 +149,7 @@ export default class WebCICDStack extends cdk.Stack {
   }
 
   private createCFDistribution(
-    s3BucketSource: s3.IBucket,
+    s3BucketSource: s3.Bucket,
     env: 'staging' | 'production'
   ) {
     const id = `${this.projectName}-web-cf-${env}`
