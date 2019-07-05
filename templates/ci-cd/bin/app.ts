@@ -21,20 +21,20 @@ if (!region) {
   process.exit(1)
 }
 
-const lambdaArtifactsBucket = createCICDStack()
+const cicdStack = createCICDStack()
 createWebCICDStack()
 createServicesCICDStack()
 
 function createCICDStack() {
   return new CICDStack(app, `${projectName}-ci-cd`, {
     env: { region }
-  }).lambdaArtifactsBucket
+  })
 }
 
 function createWebCICDStack() {
   new WebCICDStack(app, `${projectName}-web-ci-cd`, {
     env: { region },
-    lambdaArtifactsBucket 
+    lambdaArtifactsBucket: cicdStack.lambdaArtifactsBucket 
   })
 }
 
@@ -43,7 +43,7 @@ function createServicesCICDStack() {
     new ServiceCICDStack(app, `${projectName}-${service.name}-ci-cd`, {
       projectName,
       env: { region },
-      lambdaArtifactsBucket,
+      lambdaArtifactsBucket: cicdStack.lambdaArtifactsBucket,
       serviceName: service.name,
     })
   })
