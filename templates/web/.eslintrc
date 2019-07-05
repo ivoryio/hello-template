@@ -19,16 +19,14 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:cypress/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:react/recommended",
     "react-app"
   ],
-  "plugins": ["babel", "cypress", "jsx-a11y", "react"],
+  "plugins": ["babel", "jsx-a11y", "react"],
   "globals": {},
   "env": {
     "browser": true,
-    "cypress/globals": true,
     "es6": true,
     "jest": true,
     "node": true
