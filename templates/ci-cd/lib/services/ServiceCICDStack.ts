@@ -10,7 +10,7 @@ export default class ServiceCICDStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: ServiceCICDStackProps) {
     super(scope, id, props)
 
-    const { serviceName, makeBuildSpec, projectName } = props
+    const { serviceName, projectName, lambdaArtifactsBucket } = props
 
     const repository = new ServiceRepository(
       this,
@@ -26,15 +26,16 @@ export default class ServiceCICDStack extends cdk.Stack {
     })
 
     const buildProject = new ServiceBuildProject(this, `${projectName}-${serviceName}-build-construct`, {
-      serviceName: `${projectName}-${serviceName}`,
-      makeBuildSpec,
-      repository
+      repository,
+      lambdaArtifactsBucket,
+      serviceName: `${projectName}-${serviceName}`
     }).entity
 
     new ServicePipeline(this, `${projectName}-${serviceName}-pipeline-construct`, {
-      serviceName: `${projectName}-${serviceName}`,
       repository,
       buildProject,
+      lambdaArtifactsBucket,
+      serviceName: `${projectName}-${serviceName}`
     })
 
     repository.onCommit(`trigger-${projectName}-${serviceName}-service-build`, {

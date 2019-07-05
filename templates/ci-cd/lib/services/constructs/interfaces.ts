@@ -7,12 +7,13 @@ export interface ServiceProps {
 }
 
 export interface ServiceBuildProjectProps extends ServiceProps {
-  makeBuildSpec?(lambdaArtifactsBucket: s3.Bucket): any
+  lambdaArtifactsBucket: s3.Bucket
   repository: codecommit.Repository
 }
 
 export interface ServicePipelineProps extends ServiceProps {
   buildProject: codebuild.Project
+  lambdaArtifactsBucket: s3.Bucket
   repository: codecommit.Repository
   getDynamicStackParameters?(): { [name: string]: any }
 }

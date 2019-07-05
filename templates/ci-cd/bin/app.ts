@@ -21,19 +21,20 @@ if (!region) {
   process.exit(1)
 }
 
-createCICDStack()
+const cicdStack = createCICDStack()
 createWebCICDStack()
 createServicesCICDStack()
 
 function createCICDStack() {
-  new CICDStack(app, `${projectName}-ci-cd`, {
+  return new CICDStack(app, `${projectName}-ci-cd`, {
     env: { region }
   })
 }
 
 function createWebCICDStack() {
   new WebCICDStack(app, `${projectName}-web-ci-cd`, {
-    env: { region }
+    env: { region },
+    lambdaArtifactsBucket: cicdStack.lambdaArtifactsBucket 
   })
 }
 
@@ -41,8 +42,9 @@ function createServicesCICDStack() {
   services.forEach((service: { [key: string]: string }) => {
     new ServiceCICDStack(app, `${projectName}-${service.name}-ci-cd`, {
       projectName,
+      env: { region },
+      lambdaArtifactsBucket: cicdStack.lambdaArtifactsBucket,
       serviceName: service.name,
-      env: { region }
     })
   })
 }

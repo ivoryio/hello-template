@@ -1,8 +1,8 @@
 import cdk = require('@aws-cdk/cdk')
 import codebuild = require('@aws-cdk/aws-codebuild')
 import codecommit = require('@aws-cdk/aws-codecommit')
-import codepipeline = require('@aws-cdk/aws-codepipeline')
 import cpa = require('@aws-cdk/aws-codepipeline-actions')
+import codepipeline = require('@aws-cdk/aws-codepipeline')
 
 import { ServicePipelineProps } from './interfaces'
 
@@ -12,9 +12,11 @@ export default class ServicePipeline extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: ServicePipelineProps) {
     super(parent, id)
 
+    const { lambdaArtifactsBucket } = props
     const pipelineName = `${props.serviceName}-pipeline`
     const pipeline = new codepipeline.Pipeline(this, pipelineName, {
-      pipelineName
+      pipelineName,
+      artifactBucket: lambdaArtifactsBucket
     })
 
     const sourceAction = this.makeSourceAction(props.repository)

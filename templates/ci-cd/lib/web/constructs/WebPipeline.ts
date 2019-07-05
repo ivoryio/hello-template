@@ -13,11 +13,12 @@ export default class WebPipeline extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: WebPipelineProps) {
     super(parent, id)
 
-    const { repository, buildProjects, buckets } = props
+    const { repository, buildProjects, buckets, lambdaArtifactsBucket } = props
 
     const pipelineName = `${this.projectName}-web-pipeline`
     const pipeline = new codepipeline.Pipeline(this, pipelineName, {
-      pipelineName
+      pipelineName,
+      artifactBucket: lambdaArtifactsBucket
     })
 
     const sourceAction = this.setUpSourceStage(pipeline, repository)
@@ -57,7 +58,7 @@ export default class WebPipeline extends cdk.Construct {
   }
 
   private setUpStagingStage(
-    bucket: s3.IBucket,
+    bucket: s3.Bucket,
     project: codebuild.IProject,
     pipeline: codepipeline.Pipeline,
     sourceAction: cpa.CodeCommitSourceAction
@@ -84,7 +85,7 @@ export default class WebPipeline extends cdk.Construct {
   }
 
   private setUpProductionStage(
-    bucket: s3.IBucket,
+    bucket: s3.Bucket,
     project: codebuild.IProject,
     pipeline: codepipeline.Pipeline,
     sourceAction: cpa.CodeCommitSourceAction
