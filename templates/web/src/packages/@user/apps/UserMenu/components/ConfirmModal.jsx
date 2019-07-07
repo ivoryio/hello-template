@@ -20,7 +20,8 @@ const ConfirmModal = ({ hideModal, visible }) => {
       justifyContent='center'
       hide={hideModal}
       onBackdropClick={hideModal}
-      visible={visible}>
+      visible={visible}
+      withPortal>
       <Space p={16}>
         <Flex
           alignItems='center'
