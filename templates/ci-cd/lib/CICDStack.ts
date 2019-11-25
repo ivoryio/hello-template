@@ -25,8 +25,8 @@ export default class CICDStack extends cdk.Stack {
   }
 
   private makeBucket(projectName: string) {
-    return new s3.Bucket(this, `${projectName}-lambda-artifacts`, {
-      bucketName: `${projectName}-lambda-artifacts`
+    return new s3.Bucket(this, `ivory-${projectName}-lambda-artifacts`, {
+      bucketName: `ivory-${projectName}-lambda-artifacts`
     })
   }
 }
